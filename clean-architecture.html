@@ -54,14 +54,16 @@ e.g. Gender instead of String</p></li><li><p>No frameworks [Lombok, Hibernate Va
 <section id="_usecase"><h2>Usecase</h2><div class="ulist"><ul><li><p>RegisterBookUseCaseImpl.java</p></li></ul></div></section>
 <section id="_usecase_2"><h2>Usecase</h2><div class="ulist"><ul><li><p>Pure business logic</p></li><li><p>Uses entities and dataproviders</p></li><li><p>Throws business-specific exceptions</p></li><li><p>Not affected by changes in database or presentation</p></li><li><p>Plain Java (no frameworks [except lombok, and hibernate validation])</p></li><li><p>We like single-method interfaces
 A.k.a. Interface Segregation</p></li></ul></div></section>
-<section id="_data_providers_h2"><h2>Data Providers [H2]</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="java language-java">.
+<section id="_data_providers_mysql"><h2>Data Providers [MySQL]</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="java language-java">.
 ├── book
 │   ├── domain
+│   │   └── BookEntity.java
 │   ├── mapper
 │   │   ├── BookDocumentMapper.java
 │   │   └── BookMapper.java
-│   ├── repository
-│   │   ├── BookRepository.java</code></pre></div></div></section>
+│   ├── RegisterBookDataProvider.java
+│   └── repository
+│       └── BookRepository.java</code></pre></div></div></section>
 <section id="_data_provider"><h2>Data Provider</h2><div class="ulist"><ul><li><p>RegisterBookDataProvider.java</p></li><li><p>BookRepository.java</p></li></ul></div></section>
 <section id="_data_provider_2"><h2>Data Provider</h2><div class="ulist"><ul><li><p>Implements Interfaces defined by use case
 e.g. register a book</p></li><li><p>Hides all details about where the data is from</p></li><li><p>Could have multiple implementations
