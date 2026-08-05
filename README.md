@@ -1,28 +1,31 @@
-<p align="center">
-  <a href="https://revealjs.com">
-  <img src="https://hakim-static.s3.amazonaws.com/reveal-js/logo/v1/reveal-black-text.svg" alt="reveal.js" width="450">
-  </a>
-  <br><br>
-  <a href="https://github.com/hakimel/reveal.js/actions"><img src="https://github.com/hakimel/reveal.js/workflows/tests/badge.svg"></a>
-  <a href="https://slides.com/"><img src="https://s3.amazonaws.com/static.slid.es/images/slides-github-banner-320x40.png?1" alt="Slides" width="160" height="20"></a>
-</p>
+# Apresentações
 
-reveal.js is an open source HTML presentation framework. It enables anyone with a web browser to create fully featured and beautiful presentations for free. [Check out the live demo](https://revealjs.com/).
+Coleção de apresentações HTML independentes, sem Reveal.js e sem etapa de build.
 
-The framework comes with a broad range of features including [nested slides](https://revealjs.com/vertical-slides/), [Markdown support](https://revealjs.com/markdown/), [Auto-Animate](https://revealjs.com/auto-animate/), [PDF export](https://revealjs.com/pdf-export/), [speaker notes](https://revealjs.com/speaker-view/), [LaTeX support](https://revealjs.com/math/), [syntax highlighted code](https://revealjs.com/code/) and much more.
+Sirva a pasta com qualquer servidor estático e abra [index.html](index.html). Não abra os HTML diretamente pelo sistema de arquivos (`file://`): os players do YouTube exigem uma origem HTTP para receber o cabeçalho `Referer`.
 
-<h1>
-  <a href="https://revealjs.com/installation" style="font-size: 3em;">Get Started</a>
-</h1>
+Por exemplo, com Python instalado:
 
-## Documentation
-The full reveal.js documentation is available at [revealjs.com](https://revealjs.com).
+```powershell
+python -m http.server 8080
+```
 
-## Online Editor
-Want to create your presentation using a visual editor? Try the official reveal.js presentation platform for free at [Slides.com](https://slides.com). It's made by the same people behind reveal.js.
+Depois, acesse `http://localhost:8080/`. Em GitHub Pages, os vídeos também recebem a origem corretamente.
 
-## License
+Cada apresentação é uma página única composta por elementos `<section class="slide">`.
 
-MIT licensed
+As versões curta e completa de Clean Architecture estão disponíveis, respectivamente, em `clean-architecture.html` e `clean-architecture-full.html`.
 
-Copyright (C) 2011-2020 Hakim El Hattab, https://hakim.se
+## Navegação
+
+- Próximo: seta para a direita/baixo, Espaço, Page Down ou botão `›`.
+- Anterior: seta para a esquerda/cima, Page Up ou botão `‹`.
+- Primeiro/último slide: Home/End.
+- Em dispositivos touch: deslize para a esquerda ou direita.
+- O endereço `#/N` abre diretamente o slide N.
+
+O motor comum fica em `assets/slides.css` e `assets/slides.js`. Ele fornece transições, barra de progresso, controles, navegação por teclado/touch, deep links e fragmentos (`class="fragment"`).
+
+## Recursos pendentes
+
+`bizhack_weme.html` preserva os caminhos para cinco imagens que ainda não estão em `images/`: `mapeamento_oficina.png`, `modelo_negocios.png`, `home.png`, `details.png` e `hp-impressora.png`. Adicione-as nessa pasta para que esses slides sejam exibidos integralmente.

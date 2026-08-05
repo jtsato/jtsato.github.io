@@ -4,381 +4,183 @@
 <head>
     <meta charset="utf-8" />
     <title>Clean architecture</title>
-    <meta content="yes" name="apple-mobile-web-app-capable" />
-    <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style" />
-    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui"
-        name="viewport" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.9.2/css/reveal.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.9.2/css/theme/black.css"
-        id="theme" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.9.2/lib/css/zenburn.css" rel="stylesheet" />
-    <script>document.write('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.9.2/css/print/' + (window.location.search.match(/print-pdf/gi) ? 'pdf' : 'paper') + '.css" type="text/css" media="print">');</script>
-    <link rel="stylesheet" href="customcss.css" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <link rel="stylesheet" href="assets/slides.css" />
 </head>
 
 <body>
-    <div class="reveal">
-        <div class="slides">
-            <section class="title" data-state="title">
-                <h1>Clean architecture</h1>
-            </section>
-            <section id="_commons_problems">
-                <h2>Commons Problems</h2>
-                <div class="ulist">
-                    <ul>
-                        <li>
-                            <p>Decisions taken too early [e.g. database choice]</p>
-                        </li>
-                        <li>
-                            <p>Centered around frameworks and/or databases</p>
-                        </li>
-                        <li>
-                            <p>Hard to change</p>
-                        </li>
-                        <li>
-                            <p>Business logic is everywhere</p>
-                        </li>
-                        <li>
-                            <p>Hard to find things and measure the impacts</p>
-                        </li>
-                        <li>
-                            <p>Focused on technical aspects</p>
-                        </li>
-                        <li>
-                            <p>Slow, heavy tests</p>
-                        </li>
-                    </ul>
-                </div>
-                <aside class="notes">
-                    <div class="paragraph">
-                        <p>Messaging, Database
-                            In the end your BUSINESS LOGIC is tied up with the FRAMEWORKS and the DATABASE
-                            Who has never make a SQL PROCEDURE that consolidates information from SEVERAL TABLES to
-                            generate a report ?</p>
-                    </div>
-                </aside>
-            </section>
-            <section id="_the_use_case">
-                <h2>The use case</h2>
-                <div class="quoteblock">
-                    <blockquote>
-                        <div class="paragraph">
-                            <p>The center of your application is not the database.
-                                Nor is it one or more of the frameworks you may be using.
-                                The center of your application is the use cases of your application.</p>
-                        </div>
-                    </blockquote>
-                </div>
-                <div class="paragraph">
-                    <p>Robert Cecil Martin aka Uncle Bob</p>
-                </div>
-                <div class="imageblock stretch"><img src="images/uncle-bob.jpg" alt="uncle bob" height="100%" /></div>
-            </section>
-            <section id="_the_unclebob_s_style">
-                <h2>The unclebob’s style</h2>
-                <div class="imageblock"><img
-                        src="https://blog.cleancoder.com/uncle-bob/images/2012-08-13-the-clean-architecture/CleanArchitecture.jpg"
-                        alt="CleanArchitecture" width="600px" /></div>
-                <aside class="notes">
-                    <div class="paragraph">
-                        <p>The big picture</p>
-                    </div>
-                </aside>
-            </section>
-            <section id="_mattia_battiston_s_style">
-                <h2>Mattia Battiston’s style</h2>
-                <div class="imageblock"><img
-                        src="https://github.com/mattia-battiston/clean-architecture-example/blob/master/docs/images/clean-architecture-diagram-1.png?raw=true"
-                        alt="clean architecture diagram 1" width="600px" /></div>
-                <aside class="notes">
-                    <div class="paragraph">
-                        <p>The Real World Scenario</p>
-                    </div>
-                </aside>
-            </section>
-            <section id="_the_project">
-                <h2>The Project</h2>
-                <div class="imageblock"><img src="images/github.png" alt="github" width="600px" /></div>
-            </section>
-            <section id="_example_project">
-                <h2>Example Project</h2>
-                <div class="paragraph">
-                    <p><a href="http://localhost:8080/swagger-ui.html">Demo Application</a></p>
-                </div>
-            </section>
-            <section id="_project_structure_maven_module">
-                <h2>Project Structure [Maven Module]</h2>
-                <div class="listingblock">
-                    <div class="content">
-                        <pre class="highlight"><code class="java language-java">.
+    <main class="deck" id="deck">
+        <section class="slide">
+            <h1>Clean architecture</h1>
+        </section>
+        <section class="slide">
+            <h2>Commons Problems</h2>
+            <ul>
+                <li>Decisions taken too early [e.g. database choice]</li>
+                <li>Centered around frameworks and/or databases</li>
+                <li>Hard to change</li>
+                <li>Business logic is everywhere</li>
+                <li>Hard to find things and measure the impacts</li>
+                <li>Focused on technical aspects</li>
+                <li>Slow, heavy tests</li>
+            </ul>
+            <aside class="notes" aria-label="Speaker notes">
+                <p>Messaging, Database
+                    In the end your BUSINESS LOGIC is tied up with the FRAMEWORKS and the DATABASE
+                    Who has never make a SQL PROCEDURE that consolidates information from SEVERAL TABLES to
+                    generate a report ?</p>
+            </aside>
+        </section>
+        <section class="slide">
+            <h2>The use case</h2>
+            <blockquote>
+                <p>The center of your application is not the database.
+                    Nor is it one or more of the frameworks you may be using.
+                    The center of your application is the use cases of your application.</p>
+            </blockquote>
+            <p>Robert Cecil Martin aka Uncle Bob</p>
+            <img src="images/uncle-bob.jpg" alt="uncle bob" />
+        </section>
+        <section class="slide">
+            <h2>The unclebob's style</h2>
+            <img src="https://blog.cleancoder.com/uncle-bob/images/2012-08-13-the-clean-architecture/CleanArchitecture.jpg"
+                alt="CleanArchitecture" />
+            <aside class="notes" aria-label="Speaker notes">
+                <p>The big picture</p>
+            </aside>
+        </section>
+        <section class="slide">
+            <h2>Mattia Battiston's style</h2>
+            <img src="https://github.com/mattia-battiston/clean-architecture-example/blob/master/docs/images/clean-architecture-diagram-1.png?raw=true"
+                alt="clean architecture diagram 1" />
+            <aside class="notes" aria-label="Speaker notes">
+                <p>The Real World Scenario</p>
+            </aside>
+        </section>
+        <section class="slide">
+            <h2>The Project</h2>
+            <img src="images/github.png" alt="github" />
+        </section>
+        <section class="slide">
+            <h2>Example Project</h2>
+            <p><a href="http://localhost:8080/swagger-ui.html">Demo Application</a></p>
+        </section>
+        <section class="slide">
+            <h2>Project Structure [Maven Module]</h2>
+            <pre><code>.
 ├── configuration
 │
 ├── core
-│ 
+│
 ├── infra
-│   ├── amqp
-│   ├── sql
-│   └── nosql
-│ 
+│   ├── amqp
+│   ├── sql
+│   └── nosql
+│
 └── entrypoints
     └── rest</code></pre>
-                    </div>
-                </div>
-            </section>
-            <section id="_sequence_1">
-                <h2>The Flow</h2>
-                <div class="imageblock"><img src="images/workflow.png" alt="workflow" width="600px" /></div>
-            </section>
-            <section id="_domain_1">
-                <h2>Domain</h2>
-                <div class="ulist">
-                    <ul>
-                        <li>
-                            <p>Domain objects
-                                e.g. "Author", "Book", "BookDocument"</p>
-                        </li>
-                        <li>
-                            <p>Entity-specific business rules
-                                e.g. gender format</p>
-                        </li>
-                        <li>
-                            <p>Tiny Types are useful
-                                e.g. Gender instead of String</p>
-                        </li>
-                        <li>
-                            <p>No frameworks [Lombok]</p>
-                        </li>
-                    </ul>
-                </div>
-            </section>
-            <section id="_usecase_1">
-                <h2>Usecase</h2>
-                <div class="ulist">
-                    <ul>
-                        <li>
-                            <p>Pure business logic</p>
-                        </li>
-                        <li>
-                            <p>Uses entities and dataproviders</p>
-                        </li>
-                        <li>
-                            <p>Throws business-specific exceptions</p>
-                        </li>
-                        <li>
-                            <p>Not affected by changes in database or presentation</p>
-                        </li>
-                        <li>
-                            <p>Plain Java (no frameworks [except lombok, and hibernate validation])</p>
-                        </li>
-                        <li>
-                            <p>We like single-method interfaces
-                                A.k.a. Interface Segregation</p>
-                        </li>
-                    </ul>
-                </div>
-            </section>
-            <section id="_provider_1">
-                <h2>[Infra] Provider</h2>
-                <div class="ulist">
-                    <ul>
-                        <li>
-                            <p>Implements Interfaces defined by use case
-                                e.g. register a book</p>
-                        </li>
-                        <li>
-                            <p>Hides all details about where the data is from</p>
-                        </li>
-                        <li>
-                            <p>Could have multiple implementations
-                                e.g. from DB or from File System</p>
-                        </li>
-                        <li>
-                            <p>Uses whatever framework/library is appropriate
-                                e.g. spring-jdbc, hibernate, snmp4j, etc.</p>
-                        </li>
-                        <li>
-                            <p>If using ORM, you’d have a new set of entities
-                                A.k.a. decoupled from business entities</p>
-                        </li>
-                    </ul>
-                </div>
-            </section>
-            <section id="_entry_point_1">
-                <h2>Entry Point</h2>
-                <div class="ulist">
-                    <ul>
-                        <li>
-                            <p>Fires up a use case</p>
-                        </li>
-                        <li>
-                            <p>Has no business logic</p>
-                        </li>
-                        <li>
-                            <p>Has conversion logic
-                                e.g. uses DTOs to return result to WEB</p>
-                        </li>
-                        <li>
-                            <p>Hides all details about delivery mechanism</p>
-                        </li>
-                        <li>
-                            <p>GUI would be an entrypoint
-                                e.g. controllers would start use cases</p>
-                        </li>
-                        <li>
-                            <p>Uses whatever framework/library is appropriate</p>
-                        </li>
-                    </ul>
-                </div>
-            </section>
-            <section id="_testing_target">
-                <h2>Testing Target</h2>
-                <div class="imageblock"><img src="images/unit.tests.png" alt="unit.tests" width="600px" />
-                </div>
-            </section>
-            <section id="_testing_strategy">
-                <h2>Testing Strategy</h2>
-                <div class="imageblock"><img
-                        src="https://github.com/mattia-battiston/clean-architecture-example/raw/master/docs/images/testing-strategy.png"
-                        alt="testing strategy" width="600px" /></div>
-            </section>
-            <section id="_test_coverage_42_45">
-                <h2>Test Coverage [42:45]</h2>
-                <div class="videoblock stretch"><iframe width="100%" height="100%"
-                        src="https://www.youtube.com/embed/kScFczWbwRM?rel=0&amp;start=2452" frameborder="0"
-                        allowfullscreen=""></iframe></div>
-            </section>
-            <section id="_unit_tests">
-                <h2>Unit Tests</h2>
-                <div class="ulist">
-                    <ul>
-                        <li>
-                            <p>TDD
-                                a.k.a. Tests first, to drive design</p>
-                        </li>
-                        <li>
-                            <p>Cover every little detail
-                                a.k.a. Aim for 100% coverage</p>
-                        </li>
-                        <li>
-                            <p>“Dev to dev” documentation
-                                a.k.a. What should this class do?</p>
-                        </li>
-                        <li>
-                            <p>Test individual classes in isolation, very fast</p>
-                        </li>
-                    </ul>
-                </div>
-            </section>
-            <section id="_mutation_testing">
-                <h2>Mutation testing</h2>
-                <div class="paragraph">
-                    <p><a href="https://pitest.org/">https://pitest.org/</a></p>
-                </div>
-            </section>
-            <section id="_project_overview">
-                <h2>Project Overview</h2>
-                <div class="paragraph">
-                    <p><a
-                            href="https://sonarcloud.io/dashboard?id=io.github.jtsato%3Abookstore-application">SonarCloud</a>
-                    </p>
-                </div>
-            </section>
-            <section id="_fitable">
-                <h2>Fitable</h2>
-                <div class="imageblock"><img src="images/mercado-livre.png" alt="mercado livre" /></div>
-            </section>
-            <section id="_message_1_20_10">
-                <h2>Message [1:20:10]</h2>
-                <div class="videoblock stretch"><iframe width="100%" height="100%"
-                        src="https://www.youtube.com/embed/hIgHb7yWss4?rel=0&amp;start=4485" frameborder="0"
-                        allowfullscreen="" data-autoplay=""></iframe></div>
-            </section>
-            <section id="_the_end">
-                <h2>The end</h2>
-                <div class="imageblock"><img src="images/the-end.png" alt="the end" width="500px" /></div>
-            </section>
-        </div>
+        </section>
+        <section class="slide">
+            <h2>The Flow</h2>
+            <img src="images/workflow.png" alt="workflow" />
+        </section>
+        <section class="slide">
+            <h2>Domain</h2>
+            <ul>
+                <li>Domain objects e.g. "Author", "Book", "BookDocument"</li>
+                <li>Entity-specific business rules e.g. gender format</li>
+                <li>Tiny Types are useful e.g. Gender instead of String</li>
+                <li>No frameworks [Lombok]</li>
+            </ul>
+        </section>
+        <section class="slide">
+            <h2>Usecase</h2>
+            <ul>
+                <li>Pure business logic</li>
+                <li>Uses entities and dataproviders</li>
+                <li>Throws business-specific exceptions</li>
+                <li>Not affected by changes in database or presentation</li>
+                <li>Plain Java (no frameworks [except lombok, and hibernate validation])</li>
+                <li>We like single-method interfaces. A.k.a. Interface Segregation</li>
+            </ul>
+        </section>
+        <section class="slide">
+            <h2>[Infra] Provider</h2>
+            <ul>
+                <li>Implements Interfaces defined by use case e.g. register a book</li>
+                <li>Hides all details about where the data is from</li>
+                <li>Could have multiple implementations e.g. from DB or from File System</li>
+                <li>Uses whatever framework/library is appropriate e.g. spring-jdbc, hibernate, snmp4j, etc.</li>
+                <li>If using ORM, you'd have a new set of entities. A.k.a. decoupled from business entities</li>
+            </ul>
+        </section>
+        <section class="slide">
+            <h2>Entry Point</h2>
+            <ul>
+                <li>Fires up a use case</li>
+                <li>Has no business logic</li>
+                <li>Has conversion logic e.g. uses DTOs to return result to WEB</li>
+                <li>Hides all details about delivery mechanism</li>
+                <li>GUI would be an entrypoint e.g. controllers would start use cases</li>
+                <li>Uses whatever framework/library is appropriate</li>
+            </ul>
+        </section>
+        <section class="slide">
+            <h2>Testing Target</h2>
+            <img src="images/unit.tests.png" alt="unit.tests" />
+        </section>
+        <section class="slide">
+            <h2>Testing Strategy</h2>
+            <img src="https://github.com/mattia-battiston/clean-architecture-example/raw/master/docs/images/testing-strategy.png"
+                alt="testing strategy" />
+        </section>
+        <section class="slide">
+            <h2>Test Coverage [42:45]</h2>
+            <div class="videoblock">
+                <iframe src="https://www.youtube.com/embed/kScFczWbwRM?rel=0&amp;start=2452" title="Test Coverage video" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+        </section>
+        <section class="slide">
+            <h2>Unit Tests</h2>
+            <ul>
+                <li>TDD. a.k.a. Tests first, to drive design</li>
+                <li>Cover every little detail. a.k.a. Aim for 100% coverage</li>
+                <li>"Dev to dev" documentation. a.k.a. What should this class do?</li>
+                <li>Test individual classes in isolation, very fast</li>
+            </ul>
+        </section>
+        <section class="slide">
+            <h2>Mutation testing</h2>
+            <p><a href="https://pitest.org/">https://pitest.org/</a></p>
+        </section>
+        <section class="slide">
+            <h2>Project Overview</h2>
+            <p><a href="https://sonarcloud.io/dashboard?id=io.github.jtsato%3Abookstore-application">SonarCloud</a></p>
+        </section>
+        <section class="slide">
+            <h2>Fitable</h2>
+            <img src="images/mercado-livre.png" alt="mercado livre" />
+        </section>
+        <section class="slide">
+            <h2>Message [1:20:10]</h2>
+            <div class="videoblock">
+                <iframe src="https://www.youtube.com/embed/hIgHb7yWss4?rel=0&amp;start=4485" title="Message video" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+        </section>
+        <section class="slide">
+            <h2>The end</h2>
+            <img src="images/the-end.png" alt="the end" />
+        </section>
+    </main>
+
+    <div class="deck-progress"></div>
+    <div class="deck-controls">
+        <button type="button" data-nav="prev" aria-label="Slide anterior">&lsaquo;</button>
+        <button type="button" data-nav="next" aria-label="Pr&oacute;ximo slide">&rsaquo;</button>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.9.2/lib/js/head.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.9.2/js/reveal.js"></script>
-    <script>// See https://github.com/hakimel/reveal.js#configuration for a full list of configuration options
-        Reveal.initialize({
-            // Display controls in the bottom right corner
-            controls: true,
-            // Display a presentation progress bar
-            progress: true,
-            // Display the page number of the current slide
-            slideNumber: false,
-            // Push each slide change to the browser history
-            history: true,
-            // Enable keyboard shortcuts for navigation
-            keyboard: true,
-            // Enable the slide overview mode
-            overview: true,
-            // Vertical centering of slides
-            center: true,
-            // Enables touch navigation on devices with touch input
-            touch: true,
-            // Loop the presentation
-            loop: false,
-            // Change the presentation direction to be RTL
-            rtl: false,
-            // Turns fragments on and off globally
-            fragments: true,
-            // Flags if the presentation is running in an embedded mode,
-            // i.e. contained within a limited portion of the screen
-            embedded: false,
-            // Number of milliseconds between automatically proceeding to the
-            // next slide, disabled when set to 0, this value can be overwritten
-            // by using a data-autoslide attribute on your slides
-            autoSlide: 0,
-            // Stop auto-sliding after user input
-            autoSlideStoppable: true,
-            // Enable slide navigation via mouse wheel
-            mouseWheel: false,
-            // Hides the address bar on mobile devices
-            hideAddressBar: true,
-            // Opens links in an iframe preview overlay
-            previewLinks: false,
-            // Theme (e.g., beige, black, league, night, serif, simple, sky, solarized, white)
-            // NOTE setting the theme in the config no longer works in reveal.js 3.x
-            //theme: Reveal.getQueryHash().theme || 'black',
-            // Transition style (e.g., none, fade, slide, convex, concave, zoom)
-            transition: Reveal.getQueryHash().transition || 'convex',
-            // Transition speed (e.g., default, fast, slow)
-            transitionSpeed: 'default',
-            // Transition style for full page slide backgrounds (e.g., none, fade, slide, convex, concave, zoom)
-            backgroundTransition: 'fade',
-            // Number of slides away from the current that are visible
-            viewDistance: 3,
-            // Parallax background image (e.g., "'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg'")
-            parallaxBackgroundImage: '',
-            // Parallax background size in CSS syntax (e.g., "2100px 900px")
-            parallaxBackgroundSize: '',
 
-            // The "normal" size of the presentation, aspect ratio will be preserved
-            // when the presentation is scaled to fit different resolutions. Can be
-            // specified using percentage units.
-            width: 960,
-            height: 700,
-
-            // Factor of the display size that should remain empty around the content
-            margin: 0.1,
-
-            // Bounds for smallest/largest possible scale to apply to content
-            minScale: 0.2,
-            maxScale: 1.5,
-
-            // Optional libraries used to extend on reveal.js
-            dependencies: [
-                { src: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.9.2/lib/js/classList.js', condition: function () { return !document.body.classList; } },
-                { src: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.9.2/plugin/markdown/marked.js', condition: function () { return !!document.querySelector('[data-markdown]'); } },
-                { src: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.9.2/plugin/markdown/markdown.js', condition: function () { return !!document.querySelector('[data-markdown]'); } },
-                { src: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.9.2/plugin/highlight/highlight.js', async: true, callback: function () { hljs.initHighlightingOnLoad(); } },
-                { src: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.9.2/plugin/zoom-js/zoom.js', async: true, condition: function () { return !!document.body.classList; } },
-                { src: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.9.2/plugin/notes/notes.js', async: true, condition: function () { return !!document.body.classList; } }
-            ]
-        });</script>
+    <script src="assets/slides.js" defer></script>
 </body>
 
 </html>

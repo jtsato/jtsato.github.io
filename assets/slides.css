@@ -1,0 +1,222 @@
+/* Minimal, dependency-free slide deck engine. One <section class="slide"> per slide. */
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: #191919;
+    color: #eeeeee;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.deck {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+.slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.2rem;
+    padding: 6vh 8vw;
+    text-align: center;
+    overflow-y: auto;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(2%) scale(0.97);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.slide.is-active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+    z-index: 2;
+}
+
+.slide h1 {
+    font-size: clamp(2.2rem, 6vw, 4rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin: 0;
+}
+
+.slide h2 {
+    font-size: clamp(1.6rem, 4.5vw, 2.6rem);
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+}
+
+.slide p {
+    font-size: clamp(1rem, 2.2vw, 1.4rem);
+    line-height: 1.5;
+    max-width: 52rem;
+    margin: 0;
+}
+
+.slide a {
+    color: #42affa;
+    text-decoration: none;
+}
+
+.slide a:hover {
+    text-decoration: underline;
+}
+
+.slide ul {
+    text-align: left;
+    font-size: clamp(1rem, 2.2vw, 1.4rem);
+    line-height: 1.6;
+    max-width: 46rem;
+    margin: 0 auto;
+    padding-left: 1.4em;
+}
+
+.slide ul li {
+    margin-bottom: 0.5em;
+}
+
+.slide blockquote {
+    font-style: italic;
+    font-size: clamp(1.1rem, 2.6vw, 1.6rem);
+    border-left: 4px solid #42affa;
+    padding-left: 1.2rem;
+    margin: 0 auto;
+    max-width: 44rem;
+    text-align: left;
+}
+
+.slide pre {
+    text-align: left;
+    background: #111111;
+    border-radius: 6px;
+    padding: 1.2rem 1.4rem;
+    max-width: 90%;
+    overflow-x: auto;
+    font-size: clamp(0.75rem, 1.6vw, 1.05rem);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.slide pre code {
+    font-family: 'Fira Code', Consolas, Menlo, monospace;
+    color: #e6db74;
+    white-space: pre;
+}
+
+.slide img {
+    max-width: 90%;
+    max-height: 55vh;
+    object-fit: contain;
+    border-radius: 4px;
+}
+
+.slide.slide--bg {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.slide .highlight {
+    color: #f4bf3a;
+    font-weight: 700;
+    font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+}
+
+.slide .note {
+    color: #42affa;
+    font-size: clamp(0.75rem, 1.6vw, 1rem);
+}
+
+.slide .videoblock {
+    position: relative;
+    width: min(80vw, 900px);
+    aspect-ratio: 16 / 9;
+}
+
+.slide .videoblock iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: 4px;
+}
+
+/* Speaker notes are kept in the markup for future use but never rendered. */
+.slide .notes {
+    display: none;
+}
+
+/* Fragments reveal one at a time as the presenter advances within a slide. */
+.fragment {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.fragment.is-visible {
+    opacity: 1;
+}
+
+.deck-progress {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    height: 4px;
+    width: 0%;
+    background: #42affa;
+    transition: width 0.4s ease;
+    z-index: 10;
+}
+
+.deck-controls {
+    position: fixed;
+    right: 1.2rem;
+    bottom: 1.2rem;
+    display: flex;
+    gap: 0.5rem;
+    z-index: 10;
+}
+
+.deck-controls button {
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.05);
+    color: #eeeeee;
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+}
+
+.deck-controls button:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.deck-controls button:disabled {
+    opacity: 0.25;
+    cursor: default;
+}
+
+@media (max-width: 600px) {
+    .deck-controls {
+        right: 0.6rem;
+        bottom: 0.6rem;
+    }
+}

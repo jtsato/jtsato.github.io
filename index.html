@@ -1,47 +1,34 @@
 <!doctype html>
-<html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<html lang="pt-BR">
 
-		<title>reveal.js</title>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Apresentações</title>
+    <style>
+        :root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; }
+        body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #191919; color: #eee; }
+        main { width: min(42rem, calc(100% - 3rem)); }
+        h1 { font-size: clamp(2rem, 6vw, 3.5rem); margin: 0 0 .5rem; }
+        p { color: #b8b8b8; line-height: 1.5; }
+        ul { list-style: none; padding: 0; display: grid; gap: 1rem; margin-top: 2rem; }
+        a { display: block; padding: 1.25rem 1.5rem; border: 1px solid #3b3b3b; border-radius: .75rem; background: #222; color: #fff; text-decoration: none; font-size: 1.25rem; transition: border-color .2s, transform .2s; }
+        a:hover, a:focus-visible { border-color: #42affa; transform: translateY(-2px); }
+    </style>
+</head>
 
-		<link rel="stylesheet" href="dist/reset.css">
-		<link rel="stylesheet" href="dist/reveal.css">
-		<link rel="stylesheet" href="dist/theme/black.css" id="theme">
+<body>
+    <main>
+        <h1>Apresentações</h1>
+        <p>Use as setas, Espaço, Page Up/Down ou os controles na tela para navegar.</p>
+        <ul>
+            <li><a href="audiobook-claude.html">Audiobook — Guia de Bolso do Claude</a></li>
+            <li><a href="bizhack_weme.html">BizHack — Conserta meu carro</a></li>
+            <li><a href="clean-architecture.html">Clean Architecture</a></li>
+            <li><a href="clean-architecture-full.html">Clean Architecture — versão completa</a></li>
+            <li><a href="guia-claude.html">Guia de Bolso do Claude</a></li>
+        </ul>
+    </main>
+</body>
 
-		<!-- Theme used for syntax highlighted code -->
-		<link rel="stylesheet" href="plugin/highlight/monokai.css" id="highlight-theme">
-	</head>
-	<body>
-		<div class="reveal">
-			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
-			</div>
-		</div>
-
-		<script src="dist/reveal.js"></script>
-		<script src="plugin/zoom/zoom.js"></script>
-		<script src="plugin/notes/notes.js"></script>
-		<script src="plugin/search/search.js"></script>
-		<script src="plugin/markdown/markdown.js"></script>
-		<script src="plugin/highlight/highlight.js"></script>
-		<script>
-
-			// Also available as an ES module, see:
-			// https://revealjs.com/initialization/
-			Reveal.initialize({
-				controls: true,
-				progress: true,
-				center: true,
-				hash: true,
-
-				// Learn about plugins: https://revealjs.com/plugins/
-				plugins: [ RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight ]
-			});
-
-		</script>
-		
-	</body>
 </html>
