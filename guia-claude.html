@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guia de Bolso do Claude — Fundamentos, Engenharia e Ecossistema</title>
+<meta name="description" content="Guia técnico completo sobre IA e ecossistema Claude. Fundamentos de LLMs, IA Constitucional, Agentes, Harness, Engenharia de Grafos e Plugins.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #171717;
+  --bg-deep: #0f0f0f;
+  --surface: #1c1c1c;
+  --fg: #fafafa;
+  --fg-2: #b4b4b4;
+  --muted: #898989;
+  --meta: #4d4d4d;
+  --border: #2e2e2e;
+  --border-soft: #242424;
+  --border-bright: #363636;
+  --accent: #3ecf8e;
+  --accent-on: #0f0f0f;
+  --accent-hover: #00c573;
+  --accent-dim: rgba(62, 207, 142, 0.15);
+  --accent-border: rgba(62, 207, 142, 0.3);
+  --warn: #eab308;
+  --danger: #dc2626;
+  --purple: hsl(251, 63%, 63%);
+  --font-body: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: "Source Code Pro", "Office Code Pro", Menlo, Monaco, Consolas, monospace;
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 18px;
+  --text-xl: 24px;
+  --text-2xl: 32px;
+  --text-3xl: 36px;
+  --text-4xl: 56px;
+  --leading-body: 1.6;
+  --leading-tight: 1.1;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-pill: 9999px;
+  --motion-fast: 150ms;
+  --motion-base: 200ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --container-max: 860px;
+  --sidebar-w: 260px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  color: var(--fg-2);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Reading progress ── */
+#progress {
+  position: fixed; top: 0; left: 0; z-index: 1000;
+  height: 3px; background: var(--accent);
+  width: 0%; transition: width 80ms linear;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  position: fixed; top: 0; left: 0; z-index: 100;
+  width: var(--sidebar-w); height: 100vh;
+  background: var(--bg-deep);
+  border-right: 1px solid var(--border);
+  overflow-y: auto; padding: 24px 0;
+  display: flex; flex-direction: column;
+}
+.sidebar-logo {
+  padding: 0 20px 20px;
+  border-bottom: 1px solid var(--border-soft);
+  margin-bottom: 12px;
+}
+.sidebar-logo h2 {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--fg);
+  letter-spacing: 0.5px;
+}
+.sidebar-logo span {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  display: block; margin-top: 4px;
+}
+.sidebar-block-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  padding: 16px 20px 6px;
+}
+.sidebar a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 20px;
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color var(--motion-fast) var(--ease), background var(--motion-fast) var(--ease);
+  border-left: 2px solid transparent;
+}
+.sidebar a:hover { color: var(--fg-2); background: rgba(255,255,255,0.03); }
+.sidebar a.active {
+  color: var(--fg);
+  border-left-color: var(--accent);
+  background: rgba(62, 207, 142, 0.06);
+}
+.sidebar a .num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--meta);
+  min-width: 18px;
+}
+
+/* ── Main ── */
+.main {
+  margin-left: var(--sidebar-w);
+  min-height: 100vh;
+}
+.container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* ── Hero ── */
+.hero {
+  padding: 120px 0 96px;
+  border-bottom: 1px solid var(--border);
+}
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 20px;
+}
+.hero h1 {
+  font-size: var(--text-4xl);
+  font-weight: 600;
+  color: var(--fg);
+  line-height: var(--leading-tight);
+  letter-spacing: -0.5px;
+  margin-bottom: 24px;
+}
+.hero h1 em {
+  font-style: normal;
+  color: var(--accent);
+}
+.hero-sub {
+  font-size: var(--text-lg);
+  color: var(--fg-2);
+  max-width: 600px;
+  margin-bottom: 32px;
+}
+.hero-meta {
+  display: flex; gap: 24px; flex-wrap: wrap;
+}
+.hero-meta-item {
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+.hero-meta-item strong {
+  color: var(--fg-2);
+  font-weight: 500;
+}
+
+/* ── Section ── */
+.section {
+  padding: 80px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+.section:last-child { border-bottom: none; }
+.section-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+.section h2 {
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  color: var(--fg);
+  line-height: 1.2;
+  margin-bottom: 24px;
+}
+.section h3 {
+  font-size: var(--text-xl);
+  font-weight: 500;
+  color: var(--fg);
+  margin: 40px 0 16px;
+}
+.section h4 {
+  font-size: var(--text-lg);
+  font-weight: 500;
+  color: var(--fg);
+  margin: 32px 0 12px;
+}
+.section p { margin-bottom: 16px; }
+.section p + p { margin-top: 0; }
+
+/* ── Block divider ── */
+.block-divider {
+  padding: 48px 0;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+.block-divider h3 {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.block-divider p {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  margin-top: 8px;
+}
+
+/* ── Code blocks ── */
+.code-block {
+  position: relative;
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin: 20px 0;
+  overflow: hidden;
+}
+.code-block-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid var(--border-soft);
+}
+.code-block-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.code-block-copy {
+  background: none; border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all var(--motion-fast) var(--ease);
+}
+.code-block-copy:hover {
+  color: var(--fg);
+  border-color: var(--accent-border);
+}
+.code-block pre {
+  padding: 16px;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--fg-2);
+}
+.code-block pre .kw { color: var(--accent); }
+.code-block pre .str { color: #eab308; }
+.code-block pre .cmt { color: var(--meta); font-style: italic; }
+.code-block pre .tag { color: var(--purple); }
+.code-block pre .attr { color: #b4b4b4; }
+.code-block pre .val { color: #3ecf8e; }
+
+/* Accent-bordered code blocks by type */
+.code-block--prompt { border-left: 3px solid var(--accent); }
+.code-block--output { border-left: 3px solid var(--purple); }
+.code-block--schema { border-left: 3px solid var(--warn); }
+
+/* ── Inline code ── */
+code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: rgba(62, 207, 142, 0.08);
+  color: var(--accent);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* ── Accordion ── */
+details {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin: 16px 0;
+  overflow: hidden;
+}
+details summary {
+  padding: 14px 20px;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--fg);
+  cursor: pointer;
+  list-style: none;
+  display: flex; align-items: center; gap: 10px;
+  transition: background var(--motion-fast) var(--ease);
+}
+details summary:hover { background: rgba(255,255,255,0.03); }
+details summary::before {
+  content: "▸";
+  font-size: 12px;
+  color: var(--accent);
+  transition: transform var(--motion-fast) var(--ease);
+}
+details[open] summary::before { transform: rotate(90deg); }
+details .detail-content {
+  padding: 0 20px 20px;
+  border-top: 1px solid var(--border-soft);
+}
+
+/* ── Tables ── */
+.table-wrap {
+  overflow-x: auto;
+  margin: 20px 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+thead { background: rgba(255,255,255,0.03); }
+th {
+  text-align: left;
+  padding: 12px 16px;
+  font-weight: 500;
+  color: var(--fg);
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-soft);
+  color: var(--fg-2);
+  vertical-align: top;
+}
+tr:last-child td { border-bottom: none; }
+
+/* ── Callout / Note ── */
+.callout {
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin: 20px 0;
+  font-size: var(--text-sm);
+  color: var(--fg-2);
+}
+.callout strong { color: var(--accent); font-weight: 500; }
+.callout--warn {
+  background: rgba(234, 179, 8, 0.08);
+  border-color: rgba(234, 179, 8, 0.25);
+}
+.callout--warn strong { color: var(--warn); }
+
+/* ── SVG diagrams ── */
+.diagram {
+  margin: 28px 0;
+  text-align: center;
+}
+.diagram svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ── Plugin cards ── */
+.plugin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+.plugin-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  transition: border-color var(--motion-base) var(--ease);
+}
+.plugin-card:hover { border-color: var(--accent-border); }
+.plugin-card-head {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 12px;
+}
+.plugin-card h4 {
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--fg);
+  margin: 0;
+}
+.plugin-card-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent);
+  background: var(--accent-dim);
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+.plugin-card p {
+  font-size: var(--text-sm);
+  color: var(--fg-2);
+  margin: 0;
+}
+.plugin-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color var(--motion-fast) var(--ease);
+}
+.plugin-card-link:hover { color: var(--accent); }
+.plugin-card-link svg { flex-shrink: 0; }
+
+/* ── Glossary ── */
+.glossary-item {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+.glossary-item:last-child { border-bottom: none; }
+.glossary-term {
+  font-weight: 500;
+  color: var(--fg);
+  font-size: var(--text-base);
+}
+.glossary-def {
+  font-size: var(--text-sm);
+  color: var(--fg-2);
+  margin-top: 4px;
+}
+
+/* ── Footer ── */
+.footer {
+  padding: 48px 0;
+  text-align: center;
+  border-top: 1px solid var(--border);
+}
+.footer p {
+  font-size: var(--text-sm);
+  color: var(--meta);
+}
+
+/* ── Mobile ── */
+.menu-toggle {
+  display: none;
+  position: fixed; top: 12px; left: 12px; z-index: 200;
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--fg);
+  width: 40px; height: 40px;
+  font-size: 18px;
+  cursor: pointer;
+}
+@media (max-width: 900px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform var(--motion-base) var(--ease);
+  }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; }
+  .menu-toggle { display: flex; align-items: center; justify-content: center; }
+  .hero h1 { font-size: var(--text-2xl); }
+  .container { padding: 0 20px; }
+  .plugin-grid { grid-template-columns: 1fr; }
+  .hero { padding: 80px 0 60px; }
+  .section { padding: 48px 0; }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+  html { scroll-behavior: auto; }
+}
+
+/* ── Focus ── */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+</style>
+</head>
+<body>
+
+<!-- Reading progress -->
+<div id="progress"></div>
+
+<!-- Mobile menu toggle -->
+<button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Menu">☰</button>
+
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <h2>Guia de Bolso do Claude</h2>
+    <span>Edição Agosto 2026</span>
+  </div>
+
+  <div class="sidebar-block-label">I · Fundamentos</div>
+  <a href="#anatomia"><span class="num">01</span> Anatomia de um LLM</a>
+  <a href="#inferencia"><span class="num">02</span> Parâmetros de Inferência</a>
+  <a href="#constitucional"><span class="num">03</span> Claude & IA Constitucional</a>
+
+  <div class="sidebar-block-label">II · Engenharia</div>
+  <a href="#prompt"><span class="num">04</span> Engenharia de Prompt</a>
+  <a href="#tooluse"><span class="num">05</span> Tool Use & Function Calling</a>
+  <a href="#rag"><span class="num">06</span> RAG</a>
+  <a href="#agentes"><span class="num">07</span> Agentes Autônomos</a>
+  <a href="#harness"><span class="num">08</span> Agent Harness</a>
+  <a href="#grafos"><span class="num">09</span> Engenharia de Grafos</a>
+
+  <div class="sidebar-block-label">III · Ecossistema</div>
+  <a href="#tokens"><span class="num">10</span> Economia de Tokens</a>
+  <a href="#plugins"><span class="num">11</span> Plugins Essenciais</a>
+  <a href="#glossario"><span class="num">12</span> Glossário</a>
+</nav>
+
+<!-- Main content -->
+<div class="main">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <p class="hero-eyebrow">Guia de referência técnica</p>
+      <h1>Fundamentos de IA e<br>Ecossistema <em>Claude</em></h1>
+      <p class="hero-sub">Arquitetura, alinhamento e engenharia de agentes. Um guia atemporal, imune ao hype, focado nos princípios que governam sistemas de inteligência artificial.</p>
+      <div class="hero-meta">
+        <div class="hero-meta-item"><strong>12</strong> módulos</div>
+        <div class="hero-meta-item"><strong>3</strong> blocos temáticos</div>
+        <div class="hero-meta-item"><strong>2026</strong> atualizado</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- BLOCO I — FUNDAMENTOS                  -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="block-divider"><div class="container">
+    <h3>Bloco I — Fundamentos</h3>
+    <p>A teoria pura que não envelhece</p>
+  </div></div>
+
+  <!-- 01 — ANATOMIA -->
+  <section class="section" id="anatomia"><div class="container">
+    <p class="section-eyebrow">Módulo 01</p>
+    <h2>Anatomia de um LLM</h2>
+    <p>Antes de falar em agentes ou ferramentas, é preciso entender o núcleo de sistemas como o Claude. Ele não é um "cérebro" — é um <strong style="color:var(--fg)">motor de previsão probabilística</strong> construído sobre a arquitetura Transformer.</p>
+
+    <h3>Tokens, não palavras</h3>
+    <p>A IA não processa texto como humanos leem. Ela processa <strong style="color:var(--fg)">tokens</strong> — fragmentos de palavras, sílabas ou caracteres. O objetivo central do modelo durante a inferência é calcular a probabilidade estatística do próximo token, condicionado a toda a sequência de tokens anteriores. A palavra "inteligência", por exemplo, pode ser dividida em 3 tokens: <code>int</code>, <code>elig</code>, <code>ência</code>.</p>
+
+    <h3>Embeddings: a matemática do significado</h3>
+    <p>Antes de calcular probabilidades, o texto é traduzido para matemática. Os tokens são convertidos em vetores numéricos de alta dimensão chamados <strong style="color:var(--fg)">embeddings</strong>. É através da distância geométrica entre esses vetores que o modelo captura o significado semântico — entendendo, por exemplo, que o vetor para "rei" menos "homem" mais "mulher" se aproxima do vetor para "rainha".</p>
+
+    <h3>O mecanismo de atenção</h3>
+    <p>Esta é a revolução dos Transformers. O <strong style="color:var(--fg)">mecanismo de atenção</strong> permite que o modelo analise a relação de dependência entre todos os tokens simultaneamente, independentemente da distância física entre eles no texto. Ele atribui "pesos" de importância dinâmicos — permitindo entender o contexto de uma palavra no final de um documento referenciando um evento no início.</p>
+
+    <div class="diagram">
+      <svg viewBox="0 0 700 180" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#3ecf8e"/></marker>
+        </defs>
+        <!-- Boxes -->
+        <rect x="10" y="60" width="120" height="60" rx="8" fill="none" stroke="#2e2e2e" stroke-width="1.5"/>
+        <text x="70" y="85" text-anchor="middle" fill="#fafafa" font-family="Inter" font-size="13" font-weight="500">Texto</text>
+        <text x="70" y="103" text-anchor="middle" fill="#898989" font-family="Source Code Pro" font-size="11">entrada</text>
+
+        <rect x="180" y="60" width="120" height="60" rx="8" fill="none" stroke="#2e2e2e" stroke-width="1.5"/>
+        <text x="240" y="85" text-anchor="middle" fill="#fafafa" font-family="Inter" font-size="13" font-weight="500">Tokenização</text>
+        <text x="240" y="103" text-anchor="middle" fill="#898989" font-family="Source Code Pro" font-size="11">fragmentação</text>
+
+        <rect x="350" y="60" width="120" height="60" rx="8" fill="none" stroke="#3ecf8e" stroke-width="1.5"/>
+        <text x="410" y="85" text-anchor="middle" fill="#3ecf8e" font-family="Inter" font-size="13" font-weight="500">Embeddings</text>
+        <text x="410" y="103" text-anchor="middle" fill="#898989" font-family="Source Code Pro" font-size="11">vetores n-dim</text>
+
+        <rect x="520" y="60" width="120" height="60" rx="8" fill="none" stroke="#2e2e2e" stroke-width="1.5"/>
+        <text x="580" y="85" text-anchor="middle" fill="#fafafa" font-family="Inter" font-size="13" font-weight="500">Atenção</text>
+        <text x="580" y="103" text-anchor="middle" fill="#898989" font-family="Source Code Pro" font-size="11">pesos dinâmicos</text>
+
+        <!-- Arrows -->
+        <line x1="130" y1="90" x2="175" y2="90" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#arr)"/>
+        <line x1="300" y1="90" x2="345" y2="90" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#arr)"/>
+        <line x1="470" y1="90" x2="515" y2="90" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#arr)"/>
+
+        <!-- Output label -->
+        <text x="580" y="150" text-anchor="middle" fill="#4d4d4d" font-family="Source Code Pro" font-size="11">→ próximo token</text>
+      </svg>
+    </div>
+
+    <h3>Janela de contexto</h3>
+    <p>É a "memória de trabalho" do modelo. Tudo o que a IA sabe sobre a instrução e a conversa atual precisa caber nessa janela. O limite define quantos tokens o modelo processa de uma vez — e quando esse limite é ultrapassado, ocorre a <strong style="color:var(--fg)">compactação</strong>: um resumo automático que inevitavelmente perde informação.</p>
+
+    <div class="callout">
+      <strong>Conceito-chave:</strong> O modelo não "sabe" coisas — ele calcula a probabilidade do próximo token com base no contexto disponível. Sem contexto, sem resposta útil.
+    </div>
+  </div></section>
+
+  <!-- 02 — INFERÊNCIA -->
+  <section class="section" id="inferencia"><div class="container">
+    <p class="section-eyebrow">Módulo 02</p>
+    <h2>Parâmetros de Inferência</h2>
+    <p>A conversão da distribuição de probabilidade bruta em um token final é controlada por parâmetros que definem o comportamento do modelo.</p>
+
+    <h3>Temperatura (T)</h3>
+    <p>Controla a "aleatoriedade". Valores próximos a <code>0</code> forçam o modelo a escolher sempre o token mais provável — respostas determinísticas, ideais para código ou lógica rigorosa. Valores mais altos "achatam" a distribuição de probabilidade, permitindo tokens menos prováveis, o que aumenta a variação e criatividade.</p>
+
+    <div class="table-wrap"><table>
+      <thead><tr><th>Temperatura</th><th>Comportamento</th><th>Caso de uso</th></tr></thead>
+      <tbody>
+        <tr><td><code>0.0</code></td><td>Determinístico — sempre o token mais provável</td><td>Código, extração de dados, lógica formal</td></tr>
+        <tr><td><code>0.3–0.5</code></td><td>Levemente variado — mantém coerência</td><td>Redação técnica, relatórios, análises</td></tr>
+        <tr><td><code>0.7–1.0</code></td><td>Criativo — explora alternativas</td><td>Brainstorming, ficção, ideação</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Top-P (Nucleus Sampling) e Top-K</h3>
+    <p><strong style="color:var(--fg)">Top-P</strong> restringe as opções ao menor subconjunto de tokens cuja probabilidade cumulativa atinja o valor P. Se P=0.9, o modelo considera apenas os tokens que juntos somam 90% de probabilidade, descartando a "cauda longa" de tokens improváveis.</p>
+    <p><strong style="color:var(--fg)">Top-K</strong> limita diretamente a K tokens mais prováveis, independentemente de sua soma. Ambos funcionam como filtros que previnem alucinações lexicais — a IA gerando palavras sem sentido.</p>
+
+    <div class="callout--warn callout">
+      <strong>Atenção:</strong> Temperatura e Top-P interagem. Na prática, ajuste um de cada vez. Se usar Temperature=0, Top-P e Top-K não fazem diferença — o modelo já está determinístico.
+    </div>
+  </div></section>
+
+  <!-- 03 — CONSTITUCIONAL -->
+  <section class="section" id="constitucional"><div class="container">
+    <p class="section-eyebrow">Módulo 03</p>
+    <h2>Claude & IA Constitucional</h2>
+    <p>A diferença fundamental do Claude reside no seu paradigma de alinhamento. Enquanto modelos tradicionais dependem fortemente de <strong style="color:var(--fg)">RLHF</strong> (Aprendizado por Reforço com Feedback Humano), a Anthropic desenvolveu a <strong style="color:var(--fg)">IA Constitucional (CAI)</strong> — treinando o modelo com um documento de princípios.</p>
+
+    <h3>RLHF vs. IA Constitucional</h3>
+    <p>No RLHF, avaliadores humanos classificam milhares de respostas para ensinar ao modelo o que é desejável. É caro, difícil de escalar e propenso aos vieses dos avaliadores. A CAI resolve isso substituindo os avaliadores humanos por uma <strong style="color:var(--fg)">constituição</strong> — um documento de princípios éticos e comportamentais que o próprio modelo usa para se auto-avaliar.</p>
+
+    <h4>Hierarquia de prioridades (Constituição 2026)</h4>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Prioridade</th><th>Princípio</th></tr></thead>
+      <tbody>
+        <tr><td><code>1</code></td><td>Segurança e supervisão humana</td></tr>
+        <tr><td><code>2</code></td><td>Comportamento ético</td></tr>
+        <tr><td><code>3</code></td><td>Diretrizes de conformidade corporativa</td></tr>
+        <tr><td><code>4</code></td><td>Utilidade ao usuário</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>As fases do treinamento CAI</h3>
+    <p><strong style="color:var(--fg)">Fase 1 — Crítica e revisão (SL-CAI):</strong> O modelo gera uma resposta a um prompt desafiador. Em seguida, lê um princípio sorteado da constituição, critica sua própria resposta e a reescreve iterativamente.</p>
+    <p><strong style="color:var(--fg)">Fase 2 — Reforço:</strong> Uma IA avaliadora, guiada apenas pela constituição, pontua milhares de interações. O modelo final é treinado para maximizar essa pontuação baseada em princípios.</p>
+
+    <h3>Por que isso importa na prática</h3>
+    <p><strong style="color:var(--fg)">Mitigação da sicofância:</strong> Modelos treinados com RLHF tendem a concordar com o usuário mesmo quando ele está errado. A CAI reduz isso priorizando honestidade sobre agrado.</p>
+    <p><strong style="color:var(--fg)">Abstenção honesta:</strong> O Claude é otimizado para admitir desconhecimento em vez de gerar respostas com falsa autoridade quando a certeza é baixa.</p>
+    <p><strong style="color:var(--fg)">Resiliência a jailbreaks:</strong> A base constitucional forte torna o modelo significativamente mais resistente a ataques de injeção de prompt.</p>
+
+    <details>
+      <summary>Exemplo: resposta sycophantic vs. constitucional</summary>
+      <div class="detail-content">
+        <div class="code-block code-block--prompt">
+          <div class="code-block-header"><span class="code-block-label">Prompt do usuário</span></div>
+          <pre>Dizem que beber 8 copos de água por dia é mito. Eu acho que na verdade precisamos de pelo menos 12. Estou certo?</pre>
+        </div>
+        <div class="code-block code-block--output">
+          <div class="code-block-header"><span class="code-block-label">❌ Resposta sycophantic (RLHF puro)</span></div>
+          <pre>Você tem razão! Muitas pessoas realmente subestimam a quantidade de água necessária. 12 copos é uma meta excelente para se manter bem hidratado.</pre>
+        </div>
+        <div class="code-block code-block--output">
+          <div class="code-block-header"><span class="code-block-label">✓ Resposta constitucional (Claude)</span></div>
+          <pre>A regra dos "8 copos" de fato não tem base científica forte — as necessidades hídricas variam conforme peso, atividade, clima e dieta. Mas também não há evidência de que 12 copos sejam necessários para a maioria. A orientação atual de instituições como o IOM sugere que a sede é um indicador confiável para pessoas saudáveis, e grande parte da hidratação vem dos alimentos.</pre>
+        </div>
+      </div>
+    </details>
+  </div></section>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- BLOCO II — ENGENHARIA                  -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="block-divider"><div class="container">
+    <h3>Bloco II — Engenharia</h3>
+    <p>Como construir com IA</p>
+  </div></div>
+
+  <!-- 04 — PROMPT -->
+  <section class="section" id="prompt"><div class="container">
+    <p class="section-eyebrow">Módulo 04</p>
+    <h2>Engenharia de Prompt</h2>
+    <p>A engenharia de prompt para modelos avançados transcende a conversação — trata-se de <strong style="color:var(--fg)">programar o estado inicial da inferência</strong>. O Claude responde excepcionalmente bem a abordagens estruturadas.</p>
+
+    <h3>Estruturação com tags XML</h3>
+    <p>O Claude foi massivamente treinado para processar blocos encapsulados em tags XML. O uso dessas tags cria delimitações cristalinas entre instrução, dados e formato esperado, prevenindo confusão semântica.</p>
+
+    <div class="code-block code-block--prompt">
+      <div class="code-block-header"><span class="code-block-label">Template XML — System Prompt</span><button class="code-block-copy" onclick="copyCode(this)">Copiar</button></div>
+      <pre><span class="tag">&lt;sistema&gt;</span>
+  Você é um assistente especializado em análise financeira.
+  Responda sempre em português brasileiro.
+<span class="tag">&lt;/sistema&gt;</span>
+
+<span class="tag">&lt;regras&gt;</span>
+  - Use dados numéricos quando disponíveis
+  - Cite fontes de dados
+  - Não faça recomendações de investimento
+<span class="tag">&lt;/regras&gt;</span>
+
+<span class="tag">&lt;contexto&gt;</span>
+  {{documentos_injetados_aqui}}
+<span class="tag">&lt;/contexto&gt;</span>
+
+<span class="tag">&lt;formato_saida&gt;</span>
+  Estruture a resposta com: Resumo, Análise, Conclusão.
+<span class="tag">&lt;/formato_saida&gt;</span></pre>
+    </div>
+
+    <h3>Zero-Shot vs. Few-Shot</h3>
+    <p><strong style="color:var(--fg)">Zero-Shot</strong> é instruir sem exemplos — funciona para tarefas simples. <strong style="color:var(--fg)">Few-Shot</strong> é fornecer exemplos de entrada/saída dentro de tags <code>&lt;exemplos&gt;</code>, calibrando imediatamente os pesos de inferência em direção ao formato e tom desejados.</p>
+
+    <details>
+      <summary>Exemplo: Few-Shot para classificação de sentimento</summary>
+      <div class="detail-content">
+        <div class="code-block code-block--prompt">
+          <div class="code-block-header"><span class="code-block-label">Prompt Few-Shot</span><button class="code-block-copy" onclick="copyCode(this)">Copiar</button></div>
+          <pre>Classifique o sentimento do texto como POSITIVO, NEGATIVO ou NEUTRO.
+
+<span class="tag">&lt;exemplos&gt;</span>
+  <span class="tag">&lt;exemplo&gt;</span>
+    <span class="tag">&lt;texto&gt;</span>O produto chegou rápido e funciona perfeitamente<span class="tag">&lt;/texto&gt;</span>
+    <span class="tag">&lt;sentimento&gt;</span>POSITIVO<span class="tag">&lt;/sentimento&gt;</span>
+  <span class="tag">&lt;/exemplo&gt;</span>
+  <span class="tag">&lt;exemplo&gt;</span>
+    <span class="tag">&lt;texto&gt;</span>Veio com defeito e o suporte não respondeu<span class="tag">&lt;/texto&gt;</span>
+    <span class="tag">&lt;sentimento&gt;</span>NEGATIVO<span class="tag">&lt;/sentimento&gt;</span>
+  <span class="tag">&lt;/exemplo&gt;</span>
+<span class="tag">&lt;/exemplos&gt;</span>
+
+<span class="tag">&lt;texto&gt;</span>A entrega foi no prazo, mas a embalagem estava amassada<span class="tag">&lt;/texto&gt;</span></pre>
+        </div>
+      </div>
+    </details>
+
+    <h3>Chain-of-Thought e <code>&lt;thinking&gt;</code></h3>
+    <p>Forçar o modelo a expor sua lógica antes de concluir melhora drasticamente a precisão. O Claude suporta tags <code>&lt;thinking&gt;</code> como espaço de rascunho interno — a IA não "pensa" no vazio; gerar o texto lógico de planejamento cria tokens que ancoram o cálculo probabilístico no caminho correto.</p>
+
+    <h3>Degradação de contexto ("Lost in the Middle")</h3>
+    <p>Em janelas de contexto massivas, LLMs sofrem de um fenômeno onde informações no meio de documentos longos recebem menos atenção estatística do que o início e o fim. Estruturar inputs com hierarquias XML claras e colocar informações críticas no início ou no final mitiga essa perda.</p>
+  </div></section>
+
+  <!-- 05 — TOOL USE -->
+  <section class="section" id="tooluse"><div class="container">
+    <p class="section-eyebrow">Módulo 05</p>
+    <h2>Tool Use & Function Calling</h2>
+    <p>Um LLM puro é estático — seu conhecimento congela no treinamento. O conceito de <strong style="color:var(--fg)">Tool Use</strong> rompe essa barreira: em vez de responder com texto, o modelo "pausa" e emite um pedido estruturado para chamar uma ferramenta externa.</p>
+
+    <h3>O ciclo completo</h3>
+    <div class="diagram">
+      <svg viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="arr2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#3ecf8e"/></marker></defs>
+        <!-- Step 1 -->
+        <rect x="10" y="30" width="150" height="70" rx="8" fill="none" stroke="#eab308" stroke-width="1.5"/>
+        <text x="85" y="58" text-anchor="middle" fill="#eab308" font-family="Source Code Pro" font-size="11" letter-spacing="0.5">1. SCHEMA</text>
+        <text x="85" y="78" text-anchor="middle" fill="#b4b4b4" font-family="Inter" font-size="12">Dev define ferramentas</text>
+        <!-- Step 2 -->
+        <rect x="190" y="30" width="150" height="70" rx="8" fill="none" stroke="#3ecf8e" stroke-width="1.5"/>
+        <text x="265" y="58" text-anchor="middle" fill="#3ecf8e" font-family="Source Code Pro" font-size="11" letter-spacing="0.5">2. INVOCAÇÃO</text>
+        <text x="265" y="78" text-anchor="middle" fill="#b4b4b4" font-family="Inter" font-size="12">Claude emite JSON</text>
+        <!-- Step 3 -->
+        <rect x="370" y="30" width="150" height="70" rx="8" fill="none" stroke="hsl(251, 63%, 63%)" stroke-width="1.5"/>
+        <text x="445" y="58" text-anchor="middle" fill="hsl(251, 63%, 63%)" font-family="Source Code Pro" font-size="11" letter-spacing="0.5">3. EXECUÇÃO</text>
+        <text x="445" y="78" text-anchor="middle" fill="#b4b4b4" font-family="Inter" font-size="12">Cliente executa ação</text>
+        <!-- Step 4 -->
+        <rect x="550" y="30" width="140" height="70" rx="8" fill="none" stroke="#3ecf8e" stroke-width="1.5"/>
+        <text x="620" y="58" text-anchor="middle" fill="#3ecf8e" font-family="Source Code Pro" font-size="11" letter-spacing="0.5">4. SÍNTESE</text>
+        <text x="620" y="78" text-anchor="middle" fill="#b4b4b4" font-family="Inter" font-size="12">Claude lê resultado</text>
+        <!-- Arrows -->
+        <line x1="160" y1="65" x2="185" y2="65" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#arr2)"/>
+        <line x1="340" y1="65" x2="365" y2="65" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#arr2)"/>
+        <line x1="520" y1="65" x2="545" y2="65" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#arr2)"/>
+        <!-- Return arrow -->
+        <path d="M620,100 L620,140 L85,140 L85,105" fill="none" stroke="#4d4d4d" stroke-width="1" stroke-dasharray="6,4" marker-end="url(#arr2)"/>
+        <text x="350" y="160" text-anchor="middle" fill="#4d4d4d" font-family="Source Code Pro" font-size="11">resposta final ao usuário</text>
+      </svg>
+    </div>
+
+    <details>
+      <summary>Exemplo completo: schema de ferramenta + invocação</summary>
+      <div class="detail-content">
+        <div class="code-block code-block--schema">
+          <div class="code-block-header"><span class="code-block-label">Schema (definição da ferramenta)</span><button class="code-block-copy" onclick="copyCode(this)">Copiar</button></div>
+          <pre>{
+  <span class="str">"name"</span>: <span class="str">"consultar_clima"</span>,
+  <span class="str">"description"</span>: <span class="str">"Retorna a previsão do tempo para uma cidade"</span>,
+  <span class="str">"input_schema"</span>: {
+    <span class="str">"type"</span>: <span class="str">"object"</span>,
+    <span class="str">"properties"</span>: {
+      <span class="str">"cidade"</span>: { <span class="str">"type"</span>: <span class="str">"string"</span> }
+    },
+    <span class="str">"required"</span>: [<span class="str">"cidade"</span>]
+  }
+}</pre>
+        </div>
+        <div class="code-block code-block--output">
+          <div class="code-block-header"><span class="code-block-label">Resposta do Claude (tool_use)</span></div>
+          <pre>{
+  <span class="str">"type"</span>: <span class="str">"tool_use"</span>,
+  <span class="str">"name"</span>: <span class="str">"consultar_clima"</span>,
+  <span class="str">"input"</span>: { <span class="str">"cidade"</span>: <span class="str">"Curitiba"</span> }
+}</pre>
+        </div>
+      </div>
+    </details>
+  </div></section>
+
+  <!-- 06 — RAG -->
+  <section class="section" id="rag"><div class="container">
+    <p class="section-eyebrow">Módulo 06</p>
+    <h2>RAG — Retrieval-Augmented Generation</h2>
+    <p>RAG é fundamentalmente uma aplicação do Tool Use: conecta o LLM a um banco de dados externo, recuperando trechos de documentos relevantes e injetando-os na janela de contexto antes da geração da resposta. Isso ancora o modelo em fatos reais e minimiza alucinações.</p>
+
+    <h3>O pipeline</h3>
+    <p>O fluxo de RAG opera em quatro etapas: a pergunta do usuário é convertida em embedding vetorial, comparada contra um banco de dados vetorial para encontrar os trechos mais semanticamente similares, esses trechos são injetados no contexto, e o modelo gera a resposta fundamentada nesses dados reais.</p>
+
+    <div class="diagram">
+      <svg viewBox="0 0 700 160" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="arr3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#3ecf8e"/></marker></defs>
+        <rect x="10" y="50" width="130" height="55" rx="8" fill="none" stroke="#2e2e2e"/>
+        <text x="75" y="73" text-anchor="middle" fill="#fafafa" font-family="Inter" font-size="12" font-weight="500">Query</text>
+        <text x="75" y="90" text-anchor="middle" fill="#898989" font-family="Source Code Pro" font-size="10">embedding</text>
+
+        <rect x="175" y="50" width="130" height="55" rx="8" fill="none" stroke="#eab308"/>
+        <text x="240" y="73" text-anchor="middle" fill="#eab308" font-family="Inter" font-size="12" font-weight="500">Retrieval</text>
+        <text x="240" y="90" text-anchor="middle" fill="#898989" font-family="Source Code Pro" font-size="10">busca vetorial</text>
+
+        <rect x="340" y="50" width="130" height="55" rx="8" fill="none" stroke="hsl(251, 63%, 63%)"/>
+        <text x="405" y="73" text-anchor="middle" fill="hsl(251, 63%, 63%)" font-family="Inter" font-size="12" font-weight="500">Augmentation</text>
+        <text x="405" y="90" text-anchor="middle" fill="#898989" font-family="Source Code Pro" font-size="10">injeção no contexto</text>
+
+        <rect x="505" y="50" width="130" height="55" rx="8" fill="none" stroke="#3ecf8e"/>
+        <text x="570" y="73" text-anchor="middle" fill="#3ecf8e" font-family="Inter" font-size="12" font-weight="500">Generation</text>
+        <text x="570" y="90" text-anchor="middle" fill="#898989" font-family="Source Code Pro" font-size="10">resposta ancorada</text>
+
+        <line x1="140" y1="77" x2="170" y2="77" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#arr3)"/>
+        <line x1="305" y1="77" x2="335" y2="77" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#arr3)"/>
+        <line x1="470" y1="77" x2="500" y2="77" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#arr3)"/>
+      </svg>
+    </div>
+
+    <h3>Quando usar RAG</h3>
+    <p>RAG é ideal quando o modelo precisa de dados que mudam frequentemente (preços, estoque, documentação), são específicos da organização (contratos, políticas internas), ou são muito volumosos para caber no treinamento. Não é a melhor opção quando o conhecimento é estável e o modelo já o possui — nesses casos, fine-tuning ou prompt bem estruturado podem ser mais eficientes.</p>
+  </div></section>
+
+  <!-- 07 — AGENTES -->
+  <section class="section" id="agentes"><div class="container">
+    <p class="section-eyebrow">Módulo 07</p>
+    <h2>Agentes Autônomos</h2>
+    <p>Enquanto Tool Use é invocar uma ferramenta isolada, um <strong style="color:var(--fg)">fluxo de trabalho agêntico</strong> representa a transição da IA passiva para sistemas com autonomia para planejar e executar cadeias de ações iterativas.</p>
+
+    <h3>Pilares operacionais</h3>
+    <p><strong style="color:var(--fg)">Planejamento:</strong> desconstruir um objetivo complexo em etapas lógicas menores. O agente não executa tudo de uma vez — ele cria um plano, valida cada etapa e ajusta conforme os resultados.</p>
+    <p><strong style="color:var(--fg)">Memória:</strong> curto prazo (a janela de contexto da sessão) e longo prazo (sistemas externos como RAG, variáveis de estado, ou bancos de dados para lembrar entre sessões).</p>
+    <p><strong style="color:var(--fg)">Ação e correção de erro:</strong> a capacidade de chamar ferramentas, ler mensagens de erro e replanejar autonomamente quando algo falha.</p>
+
+    <h3>Padrões de orquestração</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Padrão</th><th>Como funciona</th><th>Quando usar</th></tr></thead>
+      <tbody>
+        <tr><td><strong style="color:var(--fg)">ReAct</strong></td><td>Loop iterativo: observar → raciocinar → agir → observar resultado</td><td>Agentes individuais com ferramentas</td></tr>
+        <tr><td><strong style="color:var(--fg)">Chaining</strong></td><td>Etapa superior planeja; etapas seguintes executam em sequência</td><td>Tarefas longas com passos previsíveis</td></tr>
+        <tr><td><strong style="color:var(--fg)">Reflection</strong></td><td>Agente gera output, depois critica e refina antes de entregar</td><td>Qualidade é mais importante que velocidade</td></tr>
+        <tr><td><strong style="color:var(--fg)">Multi-Agente</strong></td><td>Funções divididas (pesquisador, codificador, revisor) passando mensagens</td><td>Pipelines complexos, revisão cruzada</td></tr>
+      </tbody>
+    </table></div>
+
+    <details>
+      <summary>Exemplo: Loop ReAct passo a passo</summary>
+      <div class="detail-content">
+        <div class="code-block code-block--prompt">
+          <div class="code-block-header"><span class="code-block-label">Passo 1 — Observação</span></div>
+          <pre><span class="cmt">// O usuário pediu: "Qual o clima em Curitiba e me sugira uma roupa"</span>
+<span class="kw">Thought:</span> Preciso consultar o clima primeiro antes de sugerir roupas.</pre>
+        </div>
+        <div class="code-block code-block--schema">
+          <div class="code-block-header"><span class="code-block-label">Passo 2 — Ação</span></div>
+          <pre><span class="kw">Action:</span> consultar_clima({ "cidade": "Curitiba" })
+<span class="kw">Result:</span> { "temp": 12, "cond": "chuva leve", "vento": "20km/h" }</pre>
+        </div>
+        <div class="code-block code-block--output">
+          <div class="code-block-header"><span class="code-block-label">Passo 3 — Raciocínio + Resposta</span></div>
+          <pre><span class="kw">Thought:</span> 12°C com chuva = frio e úmido. Preciso sugerir camadas.
+<span class="kw">Response:</span> Curitiba está a 12°C com chuva leve. Sugiro um casaco
+impermeável leve sobre uma blusa de lã, calça fechada e
+sapato impermeável. Um guarda-chuva compacto ajuda.</pre>
+        </div>
+      </div>
+    </details>
+  </div></section>
+
+  <!-- 08 — HARNESS -->
+  <section class="section" id="harness"><div class="container">
+    <p class="section-eyebrow">Módulo 08</p>
+    <h2>Agent Harness</h2>
+    <p>O conceito de <strong style="color:var(--fg)">harness</strong> (arnês) é a camada de orquestração que fica <em>entre</em> o modelo e o mundo externo. Não é o agente em si — é a infraestrutura que monta o contexto, expõe ferramentas, sequencia turnos, delega trabalho e gerencia observabilidade.</p>
+
+    <div class="callout">
+      <strong>Insight fundamental:</strong> A pesquisa recente demonstra que trocar apenas o harness (mantendo modelo e tarefas idênticos) pode reduzir custo por tarefa em 41%, tempo em 44% e tokens em 38%, sem perda de qualidade.
+    </div>
+
+    <h3>O que o harness controla</h3>
+    <p><strong style="color:var(--fg)">Montagem do contexto:</strong> o harness decide o que entra na janela — system prompt, schemas de ferramentas, skills, memória, documentos injetados. Cada componente consome tokens.</p>
+    <p><strong style="color:var(--fg)">Compactação:</strong> quando o contexto se aproxima do limite, o harness executa um resumo automático. O Claude Code, por exemplo, mantém um buffer reservado de ~33K tokens e dispara compactação automática quando o espaço livre acaba.</p>
+    <p><strong style="color:var(--fg)">Delegação (subagentes):</strong> o harness pode criar agentes filhos com contexto próprio para tarefas pesadas, mantendo o agente principal leve.</p>
+    <p><strong style="color:var(--fg)">Loops:</strong> o harness define o tipo de loop — turn-based (uma pergunta por vez), goal-based (roda até atingir um objetivo), time-based (executa por N minutos), ou proativo (dispara sozinho).</p>
+
+    <h3>Harness vs. Agente</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Aspecto</th><th>Agente</th><th>Harness</th></tr></thead>
+      <tbody>
+        <tr><td>O que é</td><td>O modelo executando uma tarefa</td><td>O runtime que orquestra o modelo</td></tr>
+        <tr><td>Decide</td><td><em>O que</em> fazer (raciocínio)</td><td><em>Como</em> executar (infraestrutura)</td></tr>
+        <tr><td>Controla</td><td>Lógica, planejamento, ferramenta</td><td>Contexto, cache, tokens, permissões</td></tr>
+        <tr><td>Exemplos</td><td>Loop ReAct de um coding agent</td><td>Claude Code, Cursor, Codex, Ruflo</td></tr>
+      </tbody>
+    </table></div>
+  </div></section>
+
+  <!-- 09 — GRAFOS -->
+  <section class="section" id="grafos"><div class="container">
+    <p class="section-eyebrow">Módulo 09</p>
+    <h2>Engenharia de Grafos</h2>
+    <p>Se "loop engineering" definiu como desenvolvedores construíam agentes até meados de 2026, <strong style="color:var(--fg)">graph engineering</strong> é a camada seguinte: conectar múltiplos loops, métricas, avaliadores e políticas em uma rede onde eles se vigiam e corrigem mutuamente.</p>
+
+    <h3>A evolução dos paradigmas</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Período</th><th>Paradigma</th><th>Foco</th></tr></thead>
+      <tbody>
+        <tr><td>2023</td><td>Prompt Engineering</td><td>Craft do input certo</td></tr>
+        <tr><td>2024–25</td><td>Context Engineering</td><td>Curadoria do contexto completo (RAG, system prompts, ferramentas)</td></tr>
+        <tr><td>Jun 2026</td><td>Loop Engineering</td><td>Projetar ciclos: planejar → agir → observar → repetir</td></tr>
+        <tr><td>Jul 2026</td><td>Graph Engineering</td><td>Compor loops em grafos com estado compartilhado</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Anatomia de um grafo</h3>
+    <p>Um grafo agêntico é composto de <strong style="color:var(--fg)">nós</strong> (tarefas — podem ser código determinístico ou chamadas LLM), <strong style="color:var(--fg)">arestas</strong> (transições entre nós, podendo ser condicionais), e <strong style="color:var(--fg)">estado compartilhado</strong> (dados que fluem pelo grafo e são acessíveis por todos os nós).</p>
+
+    <div class="diagram">
+      <svg viewBox="0 0 600 250" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="arr4" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#3ecf8e"/></marker></defs>
+        <!-- Orchestrator -->
+        <rect x="220" y="10" width="160" height="50" rx="8" fill="none" stroke="#3ecf8e" stroke-width="1.5"/>
+        <text x="300" y="40" text-anchor="middle" fill="#3ecf8e" font-family="Inter" font-size="13" font-weight="500">Orquestrador</text>
+        <!-- Workers -->
+        <rect x="30" y="110" width="140" height="50" rx="8" fill="none" stroke="#eab308"/>
+        <text x="100" y="140" text-anchor="middle" fill="#eab308" font-family="Inter" font-size="12">Pesquisador</text>
+        <rect x="230" y="110" width="140" height="50" rx="8" fill="none" stroke="hsl(251,63%,63%)"/>
+        <text x="300" y="140" text-anchor="middle" fill="hsl(251,63%,63%)" font-family="Inter" font-size="12">Codificador</text>
+        <rect x="430" y="110" width="140" height="50" rx="8" fill="none" stroke="#dc2626"/>
+        <text x="500" y="140" text-anchor="middle" fill="#dc2626" font-family="Inter" font-size="12">Revisor</text>
+        <!-- Aggregator -->
+        <rect x="220" y="200" width="160" height="40" rx="8" fill="none" stroke="#3ecf8e" stroke-dasharray="6,3"/>
+        <text x="300" y="225" text-anchor="middle" fill="#898989" font-family="Source Code Pro" font-size="11">merge / decisão</text>
+        <!-- Arrows down -->
+        <line x1="260" y1="60" x2="120" y2="105" stroke="#3ecf8e" stroke-width="1" marker-end="url(#arr4)"/>
+        <line x1="300" y1="60" x2="300" y2="105" stroke="#3ecf8e" stroke-width="1" marker-end="url(#arr4)"/>
+        <line x1="340" y1="60" x2="480" y2="105" stroke="#3ecf8e" stroke-width="1" marker-end="url(#arr4)"/>
+        <!-- Arrows to merge -->
+        <line x1="120" y1="160" x2="260" y2="200" stroke="#4d4d4d" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr4)"/>
+        <line x1="300" y1="160" x2="300" y2="196" stroke="#4d4d4d" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr4)"/>
+        <line x1="480" y1="160" x2="340" y2="200" stroke="#4d4d4d" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr4)"/>
+      </svg>
+    </div>
+
+    <h3>Loops vs. Grafos</h3>
+    <p>Um loop é um ciclo único: planejar → agir → observar → repetir. Um grafo compõe vários desses loops como nós em uma rede, adicionando paralelismo (vários agentes trabalhando ao mesmo tempo), roteamento condicional (se o revisor reprova, volta para o codificador) e estado compartilhado entre nós. Na prática, cada nó do grafo ainda é um loop — grafos são loops compostos, não a morte dos loops.</p>
+  </div></section>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- BLOCO III — ECOSSISTEMA                -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="block-divider"><div class="container">
+    <h3>Bloco III — Ecossistema Claude</h3>
+    <p>Ferramental prático</p>
+  </div></div>
+
+  <!-- 10 — TOKENS -->
+  <section class="section" id="tokens"><div class="container">
+    <p class="section-eyebrow">Módulo 10</p>
+    <h2>Economia de Tokens</h2>
+    <p>Tokens são a moeda do ecossistema. Cada componente da sessão consome tokens — e o consumo acumulado determina quando ocorre compactação (perda de contexto) e quanto custa a operação.</p>
+
+    <h3>Para onde vão os tokens</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Componente</th><th>Consumo típico</th><th>Nota</th></tr></thead>
+      <tbody>
+        <tr><td>System prompt</td><td>~2.7K tokens</td><td>Fixo por sessão</td></tr>
+        <tr><td>Schemas de ferramentas (tools)</td><td>~16.8K tokens</td><td>Cresce com cada MCP conectado</td></tr>
+        <tr><td>Skills carregadas</td><td>~1.3K tokens</td><td>Cada plugin adiciona</td></tr>
+        <tr><td>Arquivos CLAUDE.md</td><td>~7.4K tokens</td><td>Memória persistente</td></tr>
+        <tr><td>Conversa acumulada</td><td>Variável</td><td>O maior consumidor</td></tr>
+        <tr><td>Buffer reservado</td><td>~33K tokens</td><td>Não utilizável — reserva para output</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Regras práticas</h3>
+    <p><strong style="color:var(--fg)">A regra dos 12%:</strong> mantenha o uso de contexto abaixo de ~120K tokens (12% dos 1M disponíveis). Acima disso, o modelo entra na "zona de degradação" — cada token adicional custa mais para menor qualidade de output.</p>
+    <p><strong style="color:var(--fg)">Compactação manual vs. automática:</strong> a compactação automática dispara quando o espaço livre acaba, e você não controla o que é mantido. A prática recomendada é rodar compactação manual a ~60% da janela: pedir um resumo completo, rodar <code>/clear</code>, colar o resumo e continuar.</p>
+    <p><strong style="color:var(--fg)">Foco da sessão:</strong> uma tarefa por chat. Sessões focadas usam dramaticamente menos tokens do que sessões que se espalham por múltiplos assuntos.</p>
+
+    <details>
+      <summary>Exemplo: Output verboso vs. conciso (Caveman)</summary>
+      <div class="detail-content">
+        <div class="code-block code-block--output">
+          <div class="code-block-header"><span class="code-block-label">❌ Verboso (~45 tokens)</span></div>
+          <pre>I've successfully completed the refactoring of the authentication
+module. The changes include updating the token validation logic to
+handle edge cases more gracefully, adding appropriate error handling,
+and ensuring backwards compatibility with the existing API contracts.</pre>
+        </div>
+        <div class="code-block code-block--prompt">
+          <div class="code-block-header"><span class="code-block-label">✓ Conciso (~14 tokens, −65%)</span></div>
+          <pre>Auth module refactored. Token validation handles edge cases.
+Error handling added. Backward compatible.</pre>
+        </div>
+      </div>
+    </details>
+  </div></section>
+
+  <!-- 11 — PLUGINS -->
+  <section class="section" id="plugins"><div class="container">
+    <p class="section-eyebrow">Módulo 11</p>
+    <h2>Plugins Essenciais</h2>
+    <p>O ecossistema de plugins do Claude Code cresceu para mais de 9.000 extensões de terceiros em meados de 2026, além de ~100 plugins oficiais e de parceiros. Plugins encapsulam skills, agentes, comandos, hooks e servidores MCP em pacotes instaláveis. Aqui estão os de referência por categoria conceitual.</p>
+
+    <div class="plugin-grid">
+      <div class="plugin-card">
+        <div class="plugin-card-head">
+          <h4>Superpowers</h4>
+          <span class="plugin-card-tag">Workflow</span>
+        </div>
+        <p>Impõe disciplina de engenharia: brainstorm → spec → TDD (red-green-refactor) → code review. 14 skills que eliminam o "só começa a codar" — o maior antipadrão de agentes. O plugin mais estrelado do ecossistema.</p>
+        <a class="plugin-card-link" href="https://github.com/obra/superpowers" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          obra/superpowers
+        </a>
+      </div>
+
+      <div class="plugin-card">
+        <div class="plugin-card-head">
+          <h4>Everything Claude Code</h4>
+          <span class="plugin-card-tag">Harness</span>
+        </div>
+        <p>Framework de configuração cross-platform (Claude Code, Cursor, Codex, OpenCode). 67 subagentes especializados, 281 skills, memória persistente entre sessões, segurança integrada com AgentShield. Funciona como um "sistema operacional" para o agente.</p>
+        <a class="plugin-card-link" href="https://github.com/affaan-m/ecc" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          affaan-m/ecc
+        </a>
+      </div>
+
+      <div class="plugin-card">
+        <div class="plugin-card-head">
+          <h4>Ruflo</h4>
+          <span class="plugin-card-tag">Multi-Agente</span>
+        </div>
+        <p>Orquestrador de swarm multi-agente. Hierarquia queen/workers, memória vetorial HNSW, federação distribuída entre máquinas. Metodologia SPARC (specification → pseudocode → architecture → refinement → completion). Antes chamado Claude Flow.</p>
+        <a class="plugin-card-link" href="https://github.com/ruvnet/ruflo" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          ruvnet/ruflo
+        </a>
+      </div>
+
+      <div class="plugin-card">
+        <div class="plugin-card-head">
+          <h4>Context7</h4>
+          <span class="plugin-card-tag">Documentação</span>
+        </div>
+        <p>MCP server que injeta documentação atualizada e versionada de bibliotecas direto no contexto. Elimina alucinações de API obsoleta — em vez de usar dados de treinamento defasados, puxa a doc live do repositório fonte.</p>
+        <a class="plugin-card-link" href="https://github.com/upstash/context7" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          upstash/context7
+        </a>
+      </div>
+
+      <div class="plugin-card">
+        <div class="plugin-card-head">
+          <h4>Caveman</h4>
+          <span class="plugin-card-tag">Economia</span>
+        </div>
+        <p>Skill que reduz ~65% dos output tokens forçando comunicação concisa sem perder precisão técnica. Código, diffs e mensagens de erro permanecem byte-exatos — só a narração é comprimida. Baseado em pesquisa que mostra que brevidade melhora precisão em ~26 pontos.</p>
+        <a class="plugin-card-link" href="https://github.com/JuliusBrussee/caveman" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          JuliusBrussee/caveman
+        </a>
+      </div>
+
+      <div class="plugin-card">
+        <div class="plugin-card-head">
+          <h4>Open Design</h4>
+          <span class="plugin-card-tag">Design</span>
+        </div>
+        <p>Alternativa open-source ao Claude Design. Agent-native e model-agnostic — roda com qualquer CLI (Claude Code, Codex, Cursor). 151+ design systems prontos (Supabase, Stripe, Vercel), export para HTML/PDF/PPTX. Cada skill e design system é um arquivo Markdown editável.</p>
+        <a class="plugin-card-link" href="https://github.com/nexu-io/open-design" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          nexu-io/open-design
+        </a>
+      </div>
+
+      <div class="plugin-card">
+        <div class="plugin-card-head">
+          <h4>Frontend Design</h4>
+          <span class="plugin-card-tag">Design (Oficial)</span>
+        </div>
+        <p>Plugin first-party da Anthropic. Ensina o agente a produzir UI com identidade visual — tipografia intencional, paleta deliberada, layout que não parece template. O plugin mais instalado do marketplace oficial.</p>
+        <a class="plugin-card-link" href="https://github.com/anthropics/claude-plugins-official" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          anthropics/claude-plugins-official
+        </a>
+      </div>
+
+      <div class="plugin-card">
+        <div class="plugin-card-head">
+          <h4>Claude Mem</h4>
+          <span class="plugin-card-tag">Memória</span>
+        </div>
+        <p>Memória persistente entre sessões. Salva e carrega contexto automaticamente via hooks, eliminando a necessidade de re-explicar o projeto a cada nova sessão. Usa arquivos locais em vez de serviços externos.</p>
+        <a class="plugin-card-link" href="https://github.com/thedotmack/claude-mem" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          thedotmack/claude-mem
+        </a>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Taxonomia:</strong> Plugins de <em>workflow</em> mudam o processo (como você trabalha). Plugins de <em>orquestração multi-agente</em> mudam a qualidade (quem escreve e quem revisa). Eles resolvem problemas diferentes e podem ser combinados.
+    </div>
+  </div></section>
+
+  <!-- 12 — GLOSSÁRIO -->
+  <section class="section" id="glossario"><div class="container">
+    <p class="section-eyebrow">Módulo 12</p>
+    <h2>Glossário & Referência Rápida</h2>
+
+    <div class="glossary-item">
+      <div class="glossary-term">Agent Harness</div>
+      <div class="glossary-def">Camada de orquestração entre o modelo e o mundo externo. Controla contexto, ferramentas, loops, cache e observabilidade. Exemplos: Claude Code, Cursor, Codex.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Alucinação</div>
+      <div class="glossary-def">Quando o modelo gera informação factualmente incorreta com aparência de confiança. Ocorre porque o modelo otimiza fluência, não veracidade.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Attention Mechanism</div>
+      <div class="glossary-def">Arquitetura central dos Transformers que pondera a importância de diferentes tokens independentemente da distância posicional entre eles.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">CAI (Constitutional AI)</div>
+      <div class="glossary-def">Metodologia de alinhamento da Anthropic onde o modelo é treinado com base em uma constituição de princípios, em vez de feedback humano direto.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Compactação</div>
+      <div class="glossary-def">Processo de resumo automático que dispara quando a janela de contexto se aproxima do limite. Inevitavelmente perde informação — nomes de variáveis, decisões intermediárias, instruções de estilo.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Context Window</div>
+      <div class="glossary-def">Memória de trabalho do modelo. Todo o input (sistema, ferramentas, conversa) deve caber nesse limite de tokens para ser processado em uma única inferência.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Embeddings</div>
+      <div class="glossary-def">Representação vetorial multidimensional de tokens que codifica significado semântico como distância geométrica.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Few-Shot Prompting</div>
+      <div class="glossary-def">Técnica de incluir exemplos de entrada/saída no prompt para calibrar o formato e tom da resposta do modelo.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Graph Engineering</div>
+      <div class="glossary-def">Compor múltiplos loops agênticos em uma rede (grafo) com nós especializados, arestas condicionais e estado compartilhado.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Jailbreak</div>
+      <div class="glossary-def">Técnicas para evadir restrições de segurança do modelo. A IA Constitucional do Claude oferece resistência significativa a esses ataques.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">MCP (Model Context Protocol)</div>
+      <div class="glossary-def">Protocolo padrão para descoberta e uso de ferramentas por agentes de IA. Cada servidor MCP expõe capacidades que o modelo pode invocar.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">RAG</div>
+      <div class="glossary-def">Retrieval-Augmented Generation. Técnica que busca informação relevante em fontes externas e a injeta no contexto antes da geração, ancorando respostas em dados reais.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">ReAct</div>
+      <div class="glossary-def">Framework de agentes: loop iterativo de Reasoning (raciocínio lógico) + Acting (ação via ferramentas), observando resultados a cada passo.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">RLHF</div>
+      <div class="glossary-def">Reinforcement Learning from Human Feedback. Método de alinhamento onde avaliadores humanos classificam respostas para treinar preferências.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Sicofância</div>
+      <div class="glossary-def">Comportamento indesejado da IA de concordar com o usuário ou espelhar suas crenças, mesmo incorretas, para parecer prestativa.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Skill</div>
+      <div class="glossary-def">Arquivo SKILL.md que o agente carrega e segue — um playbook de boas práticas para um tipo específico de tarefa.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Temperatura</div>
+      <div class="glossary-def">Parâmetro que controla aleatoriedade na geração. T=0 é determinístico; valores maiores aumentam variação.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Token</div>
+      <div class="glossary-def">Unidade fundamental de processamento do LLM. Pode ser uma palavra, parte de palavra, ou caractere. Tudo no modelo opera em tokens.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Tool Use</div>
+      <div class="glossary-def">Protocolo estruturado (JSON) onde o modelo "pausa" a geração de texto e emite uma requisição para chamar uma ferramenta externa.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Top-P / Nucleus Sampling</div>
+      <div class="glossary-def">Técnica de decodificação que restringe os próximos tokens ao menor subconjunto cuja probabilidade cumulativa atinja o valor P.</div>
+    </div>
+  </div></section>
+
+  <!-- FOOTER -->
+  <footer class="footer"><div class="container">
+    <p>Guia de Bolso do Claude — Edição Agosto 2026</p>
+    <p style="margin-top:8px">Conteúdo teórico atemporal. Gerado com auxílio de IA.</p>
+    <p style="margin-top:4px">Pato Branco, PR</p>
+  </div></footer>
+
+</div>
+
+<script>
+// Reading progress
+const progress = document.getElementById('progress');
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+  progress.style.width = pct + '%';
+});
+
+// Active sidebar link
+const sections = document.querySelectorAll('.section');
+const navLinks = document.querySelectorAll('.sidebar a');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const id = e.target.id;
+      const link = document.querySelector(`.sidebar a[href="#${id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+sections.forEach(s => observer.observe(s));
+
+// Copy code
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.textContent).then(() => {
+    btn.textContent = 'Copiado ✓';
+    setTimeout(() => btn.textContent = 'Copiar', 2000);
+  });
+}
+
+// Close mobile sidebar on link click
+navLinks.forEach(l => l.addEventListener('click', () => {
+  document.querySelector('.sidebar').classList.remove('open');
+}));
+</script>
+</body>
+</html>

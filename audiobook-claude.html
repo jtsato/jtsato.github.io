@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audiobook — Guia de Bolso do Claude</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #171717; --bg-deep: #0f0f0f; --surface: #1c1c1c;
+  --fg: #fafafa; --fg-2: #b4b4b4; --muted: #898989; --meta: #4d4d4d;
+  --border: #2e2e2e; --border-soft: #242424; --border-bright: #363636;
+  --accent: #3ecf8e; --accent-hover: #00c573;
+  --accent-dim: rgba(62,207,142,0.12); --accent-border: rgba(62,207,142,0.3);
+  --warn: #eab308; --purple: hsl(251,63%,63%);
+  --font-body: "Inter","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --font-mono: "Source Code Pro",Menlo,Monaco,Consolas,monospace;
+  --radius-sm: 6px; --radius-md: 8px; --radius-lg: 16px; --radius-pill: 9999px;
+  --ease: cubic-bezier(0.2,0,0,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);color:var(--fg-2);background:var(--bg);-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column}
+
+/* ── Layout ── */
+.app{max-width:900px;margin:0 auto;width:100%;flex:1;display:flex;flex-direction:column;padding:0 24px}
+
+/* ── Header ── */
+.header{padding:32px 0 24px;border-bottom:1px solid var(--border-soft)}
+.header-eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.header h1{font-size:28px;font-weight:600;color:var(--fg);line-height:1.15;margin-bottom:6px}
+.header p{font-size:14px;color:var(--muted)}
+
+/* ── Player controls ── */
+.player{position:sticky;top:0;z-index:100;background:var(--bg-deep);border:1px solid var(--border);border-radius:var(--radius-lg);margin:24px 0 0;padding:20px 24px;display:flex;flex-direction:column;gap:16px}
+.player-top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.player-info{flex:1;min-width:200px}
+.player-chapter{font-size:13px;color:var(--muted);font-family:var(--font-mono);letter-spacing:0.3px}
+.player-title{font-size:16px;font-weight:500;color:var(--fg);margin-top:2px}
+
+.player-buttons{display:flex;align-items:center;gap:8px}
+.btn{background:none;border:1px solid var(--border);color:var(--fg);border-radius:var(--radius-pill);cursor:pointer;transition:all 150ms var(--ease);display:flex;align-items:center;justify-content:center}
+.btn:hover{border-color:var(--accent-border);color:var(--accent)}
+.btn-sm{width:40px;height:40px;font-size:18px}
+.btn-play{width:52px;height:52px;font-size:22px;background:var(--accent);color:var(--bg-deep);border-color:var(--accent)}
+.btn-play:hover{background:var(--accent-hover);border-color:var(--accent-hover);color:var(--bg-deep)}
+
+.player-controls-right{display:flex;align-items:center;gap:12px}
+.speed-control{display:flex;align-items:center;gap:6px}
+.speed-control label{font-size:12px;color:var(--muted);font-family:var(--font-mono)}
+.speed-btn{width:32px;height:28px;font-size:11px;font-family:var(--font-mono);font-weight:500;border-radius:var(--radius-sm)}
+.speed-btn.active{background:var(--accent-dim);border-color:var(--accent-border);color:var(--accent)}
+
+.player-progress{display:flex;align-items:center;gap:12px}
+.progress-bar{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden;cursor:pointer}
+.progress-fill{height:100%;background:var(--accent);border-radius:2px;width:0%;transition:width 300ms linear}
+.progress-time{font-family:var(--font-mono);font-size:11px;color:var(--meta);min-width:70px;text-align:right}
+
+/* ── Chapter list ── */
+.chapters{margin:20px 0;border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.chapters-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:rgba(255,255,255,0.02);border-bottom:1px solid var(--border-soft);cursor:pointer}
+.chapters-header h3{font-size:14px;font-weight:500;color:var(--fg)}
+.chapters-header span{font-size:18px;color:var(--muted);transition:transform 200ms var(--ease)}
+.chapters-header.expanded span{transform:rotate(180deg)}
+.chapter-list{display:none;max-height:400px;overflow-y:auto}
+.chapter-list.show{display:block}
+.chapter-item{display:flex;align-items:center;gap:12px;padding:12px 20px;cursor:pointer;transition:background 150ms var(--ease);border-bottom:1px solid var(--border-soft)}
+.chapter-item:last-child{border-bottom:none}
+.chapter-item:hover{background:rgba(255,255,255,0.03)}
+.chapter-item.active{background:var(--accent-dim)}
+.chapter-item.active .ch-title{color:var(--accent)}
+.chapter-item.completed .ch-num{background:var(--accent);color:var(--bg-deep)}
+.ch-num{font-family:var(--font-mono);font-size:11px;width:28px;height:28px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--muted);flex-shrink:0;transition:all 150ms var(--ease)}
+.ch-block{font-family:var(--font-mono);font-size:10px;color:var(--meta);letter-spacing:0.5px;text-transform:uppercase}
+.ch-title{font-size:13px;color:var(--fg-2);transition:color 150ms var(--ease)}
+.ch-dur{font-family:var(--font-mono);font-size:11px;color:var(--meta);margin-left:auto;flex-shrink:0}
+
+/* ── Text panel ── */
+.text-panel{flex:1;padding:32px 0 80px;overflow-y:auto}
+.text-panel h2{font-size:24px;font-weight:600;color:var(--fg);margin-bottom:20px}
+.text-panel h3{font-size:18px;font-weight:500;color:var(--fg);margin:28px 0 12px}
+.paragraph{font-size:15px;line-height:1.75;color:var(--fg-2);margin-bottom:14px;padding:6px 10px;border-radius:var(--radius-sm);border-left:2px solid transparent;transition:all 250ms var(--ease);cursor:pointer}
+.paragraph:hover{background:rgba(255,255,255,0.02)}
+.paragraph.reading{background:var(--accent-dim);border-left-color:var(--accent);color:var(--fg)}
+.paragraph.done{color:var(--muted)}
+.kw{color:var(--accent);font-weight:500}
+
+/* ── Voice selector ── */
+.voice-selector{display:flex;align-items:center;gap:10px;padding:12px 0}
+.voice-selector label{font-size:12px;color:var(--muted);font-family:var(--font-mono);white-space:nowrap}
+.voice-selector select{background:var(--surface);border:1px solid var(--border);color:var(--fg-2);font-family:var(--font-body);font-size:13px;padding:6px 12px;border-radius:var(--radius-sm);flex:1;max-width:300px;cursor:pointer}
+.voice-selector select:focus{outline:none;border-color:var(--accent-border)}
+
+/* ── Footer ── */
+.footer{padding:24px 0;text-align:center;border-top:1px solid var(--border-soft)}
+.footer p{font-size:12px;color:var(--meta)}
+
+/* ── Mobile ── */
+@media(max-width:640px){
+  .app{padding:0 16px}
+  .player{padding:16px}
+  .player-top{flex-direction:column;align-items:stretch}
+  .player-buttons{justify-content:center}
+  .player-controls-right{justify-content:center}
+  .header h1{font-size:22px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Header -->
+  <header class="header">
+    <p class="header-eyebrow">Audiobook interativo</p>
+    <h1>Guia de Bolso do Claude</h1>
+    <p>12 módulos narrados pelo seu navegador. Ajuste a voz, velocidade e acompanhe o texto em tempo real.</p>
+  </header>
+
+  <!-- Player -->
+  <div class="player" id="player">
+    <div class="player-top">
+      <div class="player-info">
+        <div class="player-chapter" id="playerChapter">Módulo 01 · Fundamentos</div>
+        <div class="player-title" id="playerTitle">Anatomia de um LLM</div>
+      </div>
+      <div class="player-buttons">
+        <button class="btn btn-sm" onclick="prevChapter()" title="Capítulo anterior">⏮</button>
+        <button class="btn btn-sm" onclick="skipBack()" title="Parágrafo anterior">⏪</button>
+        <button class="btn btn-play" onclick="togglePlay()" id="btnPlay" title="Play / Pause">▶</button>
+        <button class="btn btn-sm" onclick="skipForward()" title="Próximo parágrafo">⏩</button>
+        <button class="btn btn-sm" onclick="nextChapter()" title="Próximo capítulo">⏭</button>
+      </div>
+      <div class="player-controls-right">
+        <div class="speed-control">
+          <label>Vel:</label>
+          <button class="speed-btn" onclick="setSpeed(0.75)" data-speed="0.75">0.75</button>
+          <button class="speed-btn active" onclick="setSpeed(1)" data-speed="1">1×</button>
+          <button class="speed-btn" onclick="setSpeed(1.25)" data-speed="1.25">1.25</button>
+          <button class="speed-btn" onclick="setSpeed(1.5)" data-speed="1.5">1.5</button>
+        </div>
+      </div>
+    </div>
+    <div class="player-progress">
+      <div class="progress-bar" onclick="seekProgress(event)">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-time" id="progressTime">0 / 0</div>
+    </div>
+  </div>
+
+  <!-- Voice selector -->
+  <div class="voice-selector">
+    <label>Voz:</label>
+    <select id="voiceSelect"><option>Carregando vozes...</option></select>
+  </div>
+
+  <!-- Chapters -->
+  <div class="chapters">
+    <div class="chapters-header" id="chaptersToggle" onclick="toggleChapters()">
+      <h3>Capítulos (12)</h3>
+      <span>▾</span>
+    </div>
+    <div class="chapter-list" id="chapterList"></div>
+  </div>
+
+  <!-- Text -->
+  <div class="text-panel" id="textPanel"></div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>Guia de Bolso do Claude — Audiobook Interativo — Agosto 2026</p>
+  </footer>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// CONTENT — All 12 modules as chapters
+// ══════════════════════════════════════════════
+const chapters = [
+{
+  num: "01", block: "Fundamentos", title: "Anatomia de um LLM",
+  paragraphs: [
+    "Antes de falar em agentes ou ferramentas, é preciso entender o núcleo de sistemas como o Claude. Ele não é um cérebro — é um motor de previsão probabilística construído sobre a arquitetura Transformer.",
+    "A IA não processa texto como humanos leem. Ela processa tokens — fragmentos de palavras, sílabas ou caracteres. O objetivo central do modelo durante a inferência é calcular a probabilidade estatística do próximo token, condicionado a toda a sequência de tokens anteriores.",
+    "Antes de calcular probabilidades, o texto é traduzido para matemática. Os tokens são convertidos em vetores numéricos de alta dimensão chamados embeddings. É através da distância geométrica entre esses vetores que o modelo captura o significado semântico. Por exemplo, o vetor para rei menos homem mais mulher se aproxima do vetor para rainha.",
+    "O mecanismo de atenção é a revolução dos Transformers. Ele permite que o modelo analise a relação de dependência entre todos os tokens simultaneamente, independentemente da distância física entre eles no texto. Ele atribui pesos de importância dinâmicos — permitindo entender o contexto de uma palavra no final de um documento referenciando um evento no início.",
+    "A janela de contexto é a memória de trabalho do modelo. Tudo o que a IA sabe sobre a instrução e a conversa atual precisa caber nessa janela. O limite define quantos tokens o modelo processa de uma vez. Quando esse limite é ultrapassado, ocorre a compactação: um resumo automático que inevitavelmente perde informação.",
+    "Conceito chave: O modelo não sabe coisas — ele calcula a probabilidade do próximo token com base no contexto disponível. Sem contexto, sem resposta útil."
+  ]
+},
+{
+  num: "02", block: "Fundamentos", title: "Parâmetros de Inferência",
+  paragraphs: [
+    "A conversão da distribuição de probabilidade bruta em um token final é controlada por parâmetros que definem o comportamento do modelo. São eles que determinam se a resposta será criativa ou determinística.",
+    "A temperatura controla a aleatoriedade. Valores próximos a zero forçam o modelo a escolher sempre o token mais provável — respostas determinísticas, ideais para código ou lógica rigorosa. Valores mais altos achatam a distribuição, permitindo tokens menos prováveis, o que aumenta variação e criatividade.",
+    "Com temperatura zero, o modelo é previsível: mesma entrada, mesma saída. Com temperatura zero ponto sete a um ponto zero, ele explora alternativas — bom para brainstorming e escrita criativa. Na prática, temperatura entre zero ponto três e zero ponto cinco cobre a maioria das tarefas técnicas.",
+    "Top P, ou nucleus sampling, restringe as opções ao menor subconjunto de tokens cuja probabilidade cumulativa atinja o valor P. Se P é zero ponto nove, o modelo considera apenas os tokens que juntos somam noventa por cento de probabilidade, descartando a cauda longa de tokens improváveis.",
+    "Top K limita diretamente aos K tokens mais prováveis, independentemente de sua soma. Ambos funcionam como filtros que previnem alucinações lexicais — a IA gerando palavras sem sentido.",
+    "Atenção: temperatura e Top P interagem. Na prática, ajuste um de cada vez. Se usar temperatura zero, Top P e Top K não fazem diferença — o modelo já está determinístico."
+  ]
+},
+{
+  num: "03", block: "Fundamentos", title: "Claude e IA Constitucional",
+  paragraphs: [
+    "A diferença fundamental do Claude reside no seu paradigma de alinhamento. Enquanto modelos tradicionais dependem fortemente de RLHF, Aprendizado por Reforço com Feedback Humano, a Anthropic desenvolveu a IA Constitucional — treinando o modelo com um documento de princípios.",
+    "No RLHF, avaliadores humanos classificam milhares de respostas para ensinar ao modelo o que é desejável. É caro, difícil de escalar e propenso aos vieses dos avaliadores. A IA Constitucional resolve isso substituindo os avaliadores humanos por uma constituição — um documento de princípios éticos e comportamentais que o próprio modelo usa para se auto-avaliar.",
+    "A hierarquia de prioridades da constituição de 2026 é: primeiro, segurança e supervisão humana; segundo, comportamento ético; terceiro, diretrizes de conformidade corporativa; e quarto, utilidade ao usuário. Note que utilidade vem por último — o modelo prioriza ser seguro e ético acima de ser útil.",
+    "O treinamento ocorre em duas fases. Na fase de crítica e revisão, o modelo gera uma resposta a um prompt desafiador, depois lê um princípio sorteado da constituição, critica sua própria resposta e a reescreve iterativamente. Na fase de reforço, uma IA avaliadora guiada apenas pela constituição pontua milhares de interações, e o modelo final maximiza essa pontuação.",
+    "A mitigação da sicofância é uma vantagem crucial. Modelos treinados com RLHF tendem a concordar com o usuário mesmo quando ele está errado — um comportamento chamado sicofância. A IA Constitucional reduz isso priorizando honestidade sobre agrado.",
+    "O Claude também pratica abstenção honesta: é otimizado para admitir desconhecimento em vez de gerar respostas com falsa autoridade quando a certeza é baixa. E sua base constitucional forte o torna significativamente mais resistente a ataques de injeção de prompt, conhecidos como jailbreaks."
+  ]
+},
+{
+  num: "04", block: "Engenharia", title: "Engenharia de Prompt",
+  paragraphs: [
+    "A engenharia de prompt para modelos avançados transcende a conversação — trata-se de programar o estado inicial da inferência. O Claude responde excepcionalmente bem a abordagens estruturadas.",
+    "O Claude foi massivamente treinado para processar blocos encapsulados em tags XML. O uso de tags como documento, regras, exemplo cria delimitações cristalinas entre o que é instrução do sistema, o que são dados de contexto e qual é o formato esperado. Isso previne confusão semântica e melhora a consistência do output em até quarenta por cento em tarefas complexas.",
+    "Zero-Shot é instruir sem exemplos — funciona para tarefas simples. Few-Shot é fornecer exemplos de entrada e saída dentro de tags de exemplos, calibrando imediatamente os pesos de inferência em direção ao formato e tom desejados. Na prática, dois a três exemplos bem escolhidos superam amplamente instruções puramente descritivas.",
+    "Cadeia de pensamento explícita: forçar o modelo a expor sua lógica antes de concluir melhora drasticamente a precisão. O Claude suporta tags thinking como espaço de rascunho interno. A IA não pensa no vazio — gerar o texto lógico de planejamento cria tokens que ancoram o cálculo probabilístico no caminho correto.",
+    "Degradação de contexto, ou Lost in the Middle: em janelas de contexto massivas, LLMs sofrem de um fenômeno onde informações localizadas no meio de documentos longos recebem menos atenção estatística do que o início e o fim. Estruturar inputs com hierarquias XML claras e colocar informações críticas no início ou no final mitiga essa perda de foco."
+  ]
+},
+{
+  num: "05", block: "Engenharia", title: "Tool Use e Function Calling",
+  paragraphs: [
+    "Um LLM puro é estático — seu conhecimento congela no treinamento. O conceito de Tool Use rompe essa barreira: em vez de responder com texto, o modelo pausa a geração e emite um pedido estruturado para chamar uma ferramenta externa.",
+    "O ciclo completo de Tool Use tem quatro etapas. Primeira: o schema. O desenvolvedor fornece ao Claude as instruções do sistema e um esquema detalhando as ferramentas disponíveis — nome, descrição e parâmetros obrigatórios de cada ferramenta.",
+    "Segunda: a invocação. O modelo avalia a intenção do usuário. Se necessita de dados externos, em vez de responder com texto natural, ele interrompe a geração e emite um objeto JSON pedindo para chamar uma ferramenta específica com argumentos específicos.",
+    "Terceira: a execução. A aplicação do usuário — ou o servidor que gerencia a API — intercepta esse JSON, executa a ação real, como uma query no banco de dados ou uma chamada de API, e coleta o resultado.",
+    "Quarta: a síntese. O resultado da ferramenta é devolvido ao Claude na janela de contexto. O modelo lê esses dados e, finalmente, gera a resposta em linguagem natural ao usuário. A IA nunca executa código diretamente — ela apenas pede para que algo seja executado.",
+    "É fundamental entender: Tool Use é um protocolo de comunicação estruturado, não uma capacidade mágica. O modelo não acessa bancos de dados — ele emite JSON que outro sistema interpreta e executa."
+  ]
+},
+{
+  num: "06", block: "Engenharia", title: "RAG — Retrieval-Augmented Generation",
+  paragraphs: [
+    "RAG é fundamentalmente uma aplicação do Tool Use. Conecta o LLM a um banco de dados externo, recuperando trechos de documentos relevantes e injetando-os na janela de contexto antes da geração da resposta. Isso ancora o modelo em fatos reais e minimiza alucinações.",
+    "O pipeline de RAG opera em quatro etapas. Primeiro, a pergunta do usuário é convertida em um embedding vetorial. Segundo, esse vetor é comparado contra um banco de dados vetorial para encontrar os trechos mais semanticamente similares. Terceiro, esses trechos são injetados no contexto do modelo. E quarto, o modelo gera a resposta fundamentada nesses dados reais.",
+    "RAG é ideal quando o modelo precisa de dados que mudam frequentemente — como preços, estoque ou documentação técnica —, são específicos da organização — como contratos e políticas internas —, ou são volumosos demais para caber no treinamento.",
+    "RAG não é a melhor opção quando o conhecimento é estável e o modelo já o possui. Nesses casos, fine-tuning ou um prompt bem estruturado podem ser mais eficientes e baratos. A regra prática é: se o dado muda todo mês, use RAG. Se é conhecimento permanente, considere alternativas."
+  ]
+},
+{
+  num: "07", block: "Engenharia", title: "Agentes Autônomos",
+  paragraphs: [
+    "Enquanto Tool Use é invocar uma ferramenta isolada, um fluxo de trabalho agêntico representa a transição da IA passiva para sistemas com autonomia para planejar e executar cadeias de ações iterativas.",
+    "O primeiro pilar é o planejamento: a capacidade de desconstruir um objetivo complexo em etapas lógicas menores. O agente não executa tudo de uma vez — ele cria um plano, valida cada etapa e ajusta conforme os resultados.",
+    "O segundo pilar é a memória. A memória de curto prazo é a janela de contexto da sessão atual. A memória de longo prazo usa sistemas externos — como RAG, variáveis de estado ou bancos de dados — para lembrar entre sessões diferentes.",
+    "O terceiro pilar é ação e correção de erro: a capacidade de chamar ferramentas, ler mensagens de erro e replanejar autonomamente quando algo falha. Um bom agente não para no primeiro erro — ele interpreta a falha e tenta uma abordagem alternativa.",
+    "Os principais padrões de orquestração são quatro. ReAct é o loop mais comum: observar, raciocinar, agir, observar resultado, e repetir. Chaining desacopla planejamento e execução — uma etapa planeja, as seguintes apenas executam. Reflection adiciona auto-crítica — o agente gera output, depois critica e refina antes de entregar. E Multi-Agente divide funções entre especialistas — pesquisador, codificador, revisor — que passam mensagens entre si."
+  ]
+},
+{
+  num: "08", block: "Engenharia", title: "Agent Harness",
+  paragraphs: [
+    "O conceito de harness, ou arnês, é a camada de orquestração que fica entre o modelo e o mundo externo. Não é o agente em si — é a infraestrutura que monta o contexto, expõe ferramentas, sequencia turnos, delega trabalho e gerencia observabilidade.",
+    "Um insight fundamental da pesquisa recente: trocar apenas o harness, mantendo modelo e tarefas idênticos, pode reduzir custo por tarefa em quarenta e um por cento, tempo em quarenta e quatro por cento, e tokens em trinta e oito por cento, sem perda de qualidade. O harness importa mais do que o modelo em muitos cenários.",
+    "O harness controla a montagem do contexto: decide o que entra na janela — system prompt, schemas de ferramentas, skills, memória, documentos injetados. Cada componente consome tokens.",
+    "O harness também controla a compactação. Quando o contexto se aproxima do limite, ele executa um resumo automático. O Claude Code, por exemplo, mantém um buffer reservado de cerca de trinta e três mil tokens e dispara compactação automática quando o espaço livre acaba.",
+    "Delegação por subagentes é outra função do harness. Ele pode criar agentes filhos com contexto próprio para tarefas pesadas, mantendo o agente principal leve. E define o tipo de loop: turn-based para uma pergunta por vez, goal-based para rodar até atingir um objetivo, time-based para executar por um período determinado, ou proativo para disparar sozinho.",
+    "A diferença prática: o agente decide o que fazer — é a inteligência. O harness decide como executar — é a infraestrutura. Claude Code, Cursor, Codex e Ruflo são exemplos de harnesses."
+  ]
+},
+{
+  num: "09", block: "Engenharia", title: "Engenharia de Grafos",
+  paragraphs: [
+    "Se loop engineering definiu como desenvolvedores construíam agentes até meados de dois mil e vinte e seis, graph engineering é a camada seguinte: conectar múltiplos loops, métricas, avaliadores e políticas em uma rede onde eles se vigiam e corrigem mutuamente.",
+    "A evolução dos paradigmas seguiu uma progressão clara. Em dois mil e vinte e três, prompt engineering — o craft do input certo. Em dois mil e vinte e quatro e vinte e cinco, context engineering — curadoria do contexto completo incluindo RAG, system prompts e ferramentas. Em junho de dois mil e vinte e seis, loop engineering — projetar ciclos de planejar, agir, observar e repetir. E em julho de dois mil e vinte e seis, graph engineering — compor loops em grafos com estado compartilhado.",
+    "Um grafo agêntico é composto de três elementos. Nós são as tarefas — podem ser código determinístico ou chamadas de LLM. Arestas são as transições entre nós, podendo ser condicionais. E estado compartilhado são os dados que fluem pelo grafo e são acessíveis por todos os nós.",
+    "Um padrão comum é o grafo orquestrador: um nó central distribui tarefas para nós especialistas — pesquisador, codificador, revisor — que trabalham em paralelo. Os resultados convergem para um nó de merge que decide se o trabalho está completo ou precisa ser reenviado.",
+    "Na prática, cada nó do grafo ainda é um loop internamente. Grafos são loops compostos, não a morte dos loops. Você alcança grafos quando um loop solo deixa de dar conta — e paga por isso com maior complexidade de prompts, esquemas de estado e novos modos de falha."
+  ]
+},
+{
+  num: "10", block: "Ecossistema", title: "Economia de Tokens",
+  paragraphs: [
+    "Tokens são a moeda do ecossistema. Cada componente da sessão consome tokens — e o consumo acumulado determina quando ocorre compactação, que é perda de contexto, e quanto custa a operação.",
+    "O system prompt consome cerca de dois mil e setecentos tokens por sessão. Os schemas de ferramentas consomem cerca de dezesseis mil e oitocentos tokens e crescem com cada MCP conectado. Skills carregadas adicionam cerca de mil e trezentos tokens. E o buffer reservado para output é de cerca de trinta e três mil tokens que você não pode usar.",
+    "A regra dos doze por cento: mantenha o uso de contexto abaixo de cerca de cento e vinte mil tokens, doze por cento dos um milhão disponíveis. Acima disso, o modelo entra na zona de degradação — cada token adicional custa mais para menor qualidade de output. A janela de um milhão de tokens é seguro para emergências, não uma meta.",
+    "Compactação manual versus automática: a compactação automática dispara quando o espaço livre acaba, e você não controla o que é mantido. A prática recomendada é rodar compactação manual a sessenta por cento da janela. Peça um resumo completo, rode o comando clear, cole o resumo e continue.",
+    "Foco da sessão: uma tarefa por chat. Sessões focadas usam dramaticamente menos tokens do que sessões que se espalham por múltiplos assuntos. E para tarefas que exigem muita leitura de contexto, mova-as para um subagente — ele acumula o peso no próprio contexto sem afetar a sessão principal.",
+    "Uma técnica popular é o Caveman: uma skill que força comunicação concisa, reduzindo cerca de sessenta e cinco por cento dos output tokens sem perder precisão técnica. Código e mensagens de erro permanecem exatos — só a narração é comprimida."
+  ]
+},
+{
+  num: "11", block: "Ecossistema", title: "Plugins Essenciais",
+  paragraphs: [
+    "O ecossistema de plugins do Claude Code cresceu para mais de nove mil extensões de terceiros em meados de dois mil e vinte e seis, além de cerca de cem plugins oficiais e de parceiros. Plugins encapsulam skills, agentes, comandos, hooks e servidores MCP em pacotes instaláveis.",
+    "Superpowers é o plugin de workflow mais estrelado. Impõe disciplina de engenharia: brainstorm, spec, TDD com o ciclo red-green-refactor, e code review. São quatorze skills que eliminam o antipadrão de começar a codar sem planejar.",
+    "Everything Claude Code, ou ECC, é um framework de configuração cross-platform. Funciona com Claude Code, Cursor, Codex e OpenCode. Possui sessenta e sete subagentes especializados, duzentas e oitenta e uma skills, e memória persistente entre sessões com segurança integrada. Funciona como um sistema operacional para o agente.",
+    "Ruflo, antes chamado Claude Flow, é um orquestrador de swarm multi-agente. Usa hierarquia de agentes queen e workers, memória vetorial HNSW, e federação distribuída entre máquinas. Segue a metodologia SPARC: specification, pseudocode, architecture, refinement, completion.",
+    "Context7 é um servidor MCP que injeta documentação atualizada e versionada de bibliotecas direto no contexto. Elimina alucinações de API obsoleta — em vez de usar dados de treinamento defasados, puxa a documentação live do repositório fonte.",
+    "Open Design é a alternativa open-source ao Claude Design. É agent-native e model-agnostic — roda com qualquer CLI de codificação. Traz mais de cento e cinquenta design systems prontos e exporta para HTML, PDF e PowerPoint. Cada skill e design system é um arquivo Markdown editável.",
+    "Uma taxonomia importante: plugins de workflow mudam o seu processo — como você trabalha. Plugins de orquestração multi-agente mudam a qualidade — quem escreve e quem revisa. Eles resolvem problemas diferentes e podem ser combinados."
+  ]
+},
+{
+  num: "12", block: "Ecossistema", title: "Glossário e Referência",
+  paragraphs: [
+    "Agent Harness: camada de orquestração entre o modelo e o mundo externo. Controla contexto, ferramentas, loops, cache e observabilidade. Exemplos incluem Claude Code, Cursor e Codex.",
+    "Alucinação: quando o modelo gera informação factualmente incorreta com aparência de confiança. Ocorre porque o modelo otimiza fluência, não veracidade.",
+    "Attention Mechanism, ou mecanismo de atenção: arquitetura central dos Transformers que pondera a importância de diferentes tokens independentemente da distância posicional entre eles.",
+    "CAI, ou Constitutional AI: metodologia de alinhamento da Anthropic onde o modelo é treinado com base em uma constituição de princípios, em vez de feedback humano direto.",
+    "Compactação: processo de resumo automático que dispara quando a janela de contexto se aproxima do limite. Inevitavelmente perde informação como nomes de variáveis, decisões intermediárias e instruções de estilo.",
+    "Embeddings: representação vetorial multidimensional de tokens que codifica significado semântico como distância geométrica.",
+    "Graph Engineering: compor múltiplos loops agênticos em uma rede, ou grafo, com nós especializados, arestas condicionais e estado compartilhado.",
+    "MCP, Model Context Protocol: protocolo padrão para descoberta e uso de ferramentas por agentes de IA. Cada servidor MCP expõe capacidades que o modelo pode invocar.",
+    "RAG, Retrieval-Augmented Generation: técnica que busca informação relevante em fontes externas e a injeta no contexto antes da geração, ancorando respostas em dados reais.",
+    "ReAct: framework de agentes com loop iterativo de raciocínio lógico e ação via ferramentas, observando resultados a cada passo.",
+    "Sicofância: comportamento indesejado da IA de concordar com o usuário ou espelhar suas crenças, mesmo incorretas, para parecer prestativa.",
+    "Skill: arquivo SKILL.md que o agente carrega e segue — um playbook de boas práticas para um tipo específico de tarefa.",
+    "Token: unidade fundamental de processamento do LLM. Pode ser uma palavra, parte de palavra ou caractere. Tudo no modelo opera em tokens.",
+    "Tool Use: protocolo estruturado em JSON onde o modelo pausa a geração de texto e emite uma requisição para chamar uma ferramenta externa."
+  ]
+}
+];
+
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+let currentChapter = 0;
+let currentParagraph = 0;
+let isPlaying = false;
+let speed = 1;
+let selectedVoice = null;
+const synth = window.speechSynthesis;
+let utterance = null;
+const completedChapters = new Set();
+
+// ══════════════════════════════════════════════
+// VOICE SETUP
+// ══════════════════════════════════════════════
+function loadVoices() {
+  const voices = synth.getVoices();
+  const select = document.getElementById('voiceSelect');
+  select.innerHTML = '';
+
+  // Prefer PT-BR voices, then PT, then any
+  const ptBR = voices.filter(v => v.lang.startsWith('pt-BR') || v.lang.startsWith('pt_BR'));
+  const pt = voices.filter(v => v.lang.startsWith('pt') && !v.lang.includes('BR'));
+  const others = voices.filter(v => !v.lang.startsWith('pt'));
+  const sorted = [...ptBR, ...pt, ...others];
+
+  if (sorted.length === 0) {
+    select.innerHTML = '<option>Nenhuma voz disponível</option>';
+    return;
+  }
+
+  sorted.forEach((v, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    const flag = v.lang.startsWith('pt') ? '🇧🇷 ' : '';
+    opt.textContent = `${flag}${v.name} (${v.lang})`;
+    opt.dataset.origIndex = voices.indexOf(v);
+    select.appendChild(opt);
+  });
+
+  // Auto-select first PT-BR
+  selectedVoice = sorted[0];
+  select.addEventListener('change', () => {
+    const idx = parseInt(select.selectedOptions[0].dataset.origIndex);
+    selectedVoice = voices[idx];
+    if (isPlaying) { stopSpeech(); speakCurrent(); }
+  });
+}
+synth.addEventListener('voiceschanged', loadVoices);
+loadVoices();
+
+// ══════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════
+function renderChapterList() {
+  const list = document.getElementById('chapterList');
+  list.innerHTML = chapters.map((ch, i) => `
+    <div class="chapter-item ${i === currentChapter ? 'active' : ''} ${completedChapters.has(i) ? 'completed' : ''}"
+         onclick="goToChapter(${i})">
+      <div class="ch-num">${ch.num}</div>
+      <div>
+        <div class="ch-block">${ch.block}</div>
+        <div class="ch-title">${ch.title}</div>
+      </div>
+      <div class="ch-dur">${ch.paragraphs.length} §</div>
+    </div>
+  `).join('');
+}
+
+function renderText() {
+  const ch = chapters[currentChapter];
+  const panel = document.getElementById('textPanel');
+  panel.innerHTML = `<h2>${ch.title}</h2>` +
+    ch.paragraphs.map((p, i) => {
+      let cls = '';
+      if (i === currentParagraph && isPlaying) cls = 'reading';
+      else if (i < currentParagraph) cls = 'done';
+      return `<div class="paragraph ${cls}" data-idx="${i}" onclick="goToParagraph(${i})">${p}</div>`;
+    }).join('');
+
+  // Scroll active paragraph into view
+  const active = panel.querySelector('.reading');
+  if (active) active.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function updatePlayerInfo() {
+  const ch = chapters[currentChapter];
+  document.getElementById('playerChapter').textContent = `Módulo ${ch.num} · ${ch.block}`;
+  document.getElementById('playerTitle').textContent = ch.title;
+  document.getElementById('progressTime').textContent =
+    `${currentParagraph + 1} / ${ch.paragraphs.length}`;
+  document.getElementById('progressFill').style.width =
+    `${((currentParagraph + 1) / ch.paragraphs.length) * 100}%`;
+}
+
+// ══════════════════════════════════════════════
+// SPEECH
+// ══════════════════════════════════════════════
+function speakCurrent() {
+  if (currentParagraph >= chapters[currentChapter].paragraphs.length) {
+    completedChapters.add(currentChapter);
+    if (currentChapter < chapters.length - 1) {
+      currentChapter++;
+      currentParagraph = 0;
+      renderChapterList();
+      renderText();
+      updatePlayerInfo();
+      speakCurrent();
+    } else {
+      stopSpeech();
+      isPlaying = false;
+      document.getElementById('btnPlay').textContent = '▶';
+    }
+    return;
+  }
+
+  const text = chapters[currentChapter].paragraphs[currentParagraph];
+  utterance = new SpeechSynthesisUtterance(text);
+  if (selectedVoice) utterance.voice = selectedVoice;
+  utterance.rate = speed;
+  utterance.pitch = 1;
+
+  utterance.onend = () => {
+    currentParagraph++;
+    renderText();
+    updatePlayerInfo();
+    if (isPlaying) speakCurrent();
+  };
+
+  utterance.onerror = (e) => {
+    if (e.error !== 'interrupted') {
+      console.error('Speech error:', e.error);
+    }
+  };
+
+  renderText();
+  updatePlayerInfo();
+  synth.speak(utterance);
+}
+
+function stopSpeech() {
+  synth.cancel();
+}
+
+// ══════════════════════════════════════════════
+// CONTROLS
+// ══════════════════════════════════════════════
+function togglePlay() {
+  if (isPlaying) {
+    isPlaying = false;
+    stopSpeech();
+    document.getElementById('btnPlay').textContent = '▶';
+  } else {
+    isPlaying = true;
+    document.getElementById('btnPlay').textContent = '⏸';
+    speakCurrent();
+  }
+  renderText();
+}
+
+function skipForward() {
+  stopSpeech();
+  if (currentParagraph < chapters[currentChapter].paragraphs.length - 1) {
+    currentParagraph++;
+  }
+  renderText();
+  updatePlayerInfo();
+  if (isPlaying) speakCurrent();
+}
+
+function skipBack() {
+  stopSpeech();
+  if (currentParagraph > 0) currentParagraph--;
+  renderText();
+  updatePlayerInfo();
+  if (isPlaying) speakCurrent();
+}
+
+function nextChapter() {
+  stopSpeech();
+  completedChapters.add(currentChapter);
+  if (currentChapter < chapters.length - 1) {
+    currentChapter++;
+    currentParagraph = 0;
+    renderChapterList();
+    renderText();
+    updatePlayerInfo();
+    if (isPlaying) speakCurrent();
+  }
+}
+
+function prevChapter() {
+  stopSpeech();
+  if (currentChapter > 0) {
+    currentChapter--;
+    currentParagraph = 0;
+    renderChapterList();
+    renderText();
+    updatePlayerInfo();
+    if (isPlaying) speakCurrent();
+  }
+}
+
+function goToChapter(idx) {
+  stopSpeech();
+  currentChapter = idx;
+  currentParagraph = 0;
+  renderChapterList();
+  renderText();
+  updatePlayerInfo();
+  if (isPlaying) speakCurrent();
+}
+
+function goToParagraph(idx) {
+  stopSpeech();
+  currentParagraph = idx;
+  renderText();
+  updatePlayerInfo();
+  if (isPlaying) speakCurrent();
+}
+
+function setSpeed(s) {
+  speed = s;
+  document.querySelectorAll('.speed-btn').forEach(b => {
+    b.classList.toggle('active', parseFloat(b.dataset.speed) === s);
+  });
+  if (isPlaying) { stopSpeech(); speakCurrent(); }
+}
+
+function seekProgress(e) {
+  const bar = e.currentTarget;
+  const pct = e.offsetX / bar.offsetWidth;
+  const total = chapters[currentChapter].paragraphs.length;
+  const target = Math.floor(pct * total);
+  goToParagraph(Math.max(0, Math.min(target, total - 1)));
+}
+
+function toggleChapters() {
+  const list = document.getElementById('chapterList');
+  const header = document.getElementById('chaptersToggle');
+  list.classList.toggle('show');
+  header.classList.toggle('expanded');
+}
+
+// ══════════════════════════════════════════════
+// KEYBOARD
+// ══════════════════════════════════════════════
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'SELECT') return;
+  switch(e.code) {
+    case 'Space': e.preventDefault(); togglePlay(); break;
+    case 'ArrowRight': skipForward(); break;
+    case 'ArrowLeft': skipBack(); break;
+    case 'ArrowUp': e.preventDefault(); prevChapter(); break;
+    case 'ArrowDown': e.preventDefault(); nextChapter(); break;
+  }
+});
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+renderChapterList();
+renderText();
+updatePlayerInfo();
+// Start with chapters open
+document.getElementById('chapterList').classList.add('show');
+document.getElementById('chaptersToggle').classList.add('expanded');
+</script>
+</body>
+</html>
