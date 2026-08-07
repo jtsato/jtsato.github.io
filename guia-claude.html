@@ -537,7 +537,7 @@ tr:last-child td { border-bottom: none; }
   <a href="#grafos"><span class="num">09</span> Engenharia de Grafos</a>
 
   <div class="sidebar-block-label">III · Ecossistema</div>
-  <a href="#tokens"><span class="num">10</span> Economia de Tokens</a>
+  <a href="#tokens"><span class="num">10</span> Eficiência de Contexto &amp; Tokens</a>
   <a href="#plugins"><span class="num">11</span> Plugins Essenciais</a>
   <a href="#funcionalidades"><span class="num">12</span> 12 Funcionalidades do Claude Code</a>
   <a href="#glossario"><span class="num">13</span> Glossário</a>
@@ -1012,8 +1012,13 @@ sapato impermeável. Um guarda-chuva compacto ajuda.</pre>
   <!-- 10 — TOKENS -->
   <section class="section" id="tokens"><div class="container">
     <p class="section-eyebrow">Módulo 10</p>
-    <h2>Economia de Tokens</h2>
-    <p>Tokens são a moeda do ecossistema. Cada componente da sessão consome tokens — e o consumo acumulado determina quando ocorre compactação (perda de contexto) e quanto custa a operação.</p>
+    <h2>Eficiência de Contexto &amp; Tokens</h2>
+    <p>A otimização de tokens em sistemas baseados em LLMs não se resume a escrever prompts menores. Em workloads agênticos, o consumo é determinado pelo <strong style="color:var(--fg)">contexto total processado ao longo da execução</strong>: instruções de sistema, histórico da sessão, arquivos, schemas de ferramentas, skills, resultados intermediários e contextos criados por agentes auxiliares.</p>
+    <p>Por isso, economia de tokens deve ser tratada como um problema de <strong style="color:var(--fg)">engenharia de contexto</strong>. O objetivo não é remover informação indiscriminadamente, e sim manter, em cada etapa, o menor contexto suficiente para que o modelo tome uma decisão correta.</p>
+
+    <div class="callout">
+      <strong>Princípio de eficiência:</strong> use o menor contexto e a menor quantidade de orquestração capazes de executar a tarefa com a qualidade requerida.
+    </div>
 
     <h3>Para onde vão os tokens</h3>
     <div class="table-wrap"><table>
@@ -1023,15 +1028,119 @@ sapato impermeável. Um guarda-chuva compacto ajuda.</pre>
         <tr><td>Schemas de ferramentas (tools)</td><td>~16.8K tokens</td><td>Cresce com cada MCP conectado</td></tr>
         <tr><td>Skills carregadas</td><td>~1.3K tokens</td><td>Cada plugin adiciona</td></tr>
         <tr><td>Arquivos CLAUDE.md</td><td>~7.4K tokens</td><td>Memória persistente</td></tr>
-        <tr><td>Conversa acumulada</td><td>Variável</td><td>O maior consumidor</td></tr>
+        <tr><td>Conversa acumulada</td><td>Variável</td><td>Normalmente o maior consumidor</td></tr>
         <tr><td>Buffer reservado</td><td>~33K tokens</td><td>Não utilizável — reserva para output</td></tr>
       </tbody>
     </table></div>
 
-    <h3>Regras práticas</h3>
-    <p><strong style="color:var(--fg)">A regra dos 12%:</strong> mantenha o uso de contexto abaixo de ~120K tokens (12% dos 1M disponíveis). Acima disso, o modelo entra na "zona de degradação" — cada token adicional custa mais para menor qualidade de output.</p>
-    <p><strong style="color:var(--fg)">Compactação manual vs. automática:</strong> a compactação automática dispara quando o espaço livre acaba, e você não controla o que é mantido. A prática recomendada é rodar compactação manual a ~60% da janela: pedir um resumo completo, rodar <code>/clear</code>, colar o resumo e continuar.</p>
-    <p><strong style="color:var(--fg)">Foco da sessão:</strong> uma tarefa por chat. Sessões focadas usam dramaticamente menos tokens do que sessões que se espalham por múltiplos assuntos.</p>
+    <h3>Ciclo de vida do contexto</h3>
+    <p>Uma sessão agêntica acumula estado progressivamente. Cada interação pode adicionar código-fonte, resultados de ferramentas, decisões, erros, correções e respostas anteriores. Esse histórico possui valor enquanto influencia as próximas decisões. Quando deixa de ser necessário, passa a representar <strong style="color:var(--fg)">contexto residual</strong>.</p>
+
+    <div class="diagram">
+      <svg viewBox="0 0 700 190" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="arrTokens" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#3ecf8e"/></marker></defs>
+        <rect x="20" y="55" width="135" height="60" rx="8" fill="none" stroke="#3ecf8e" stroke-width="1.5"/>
+        <text x="87" y="80" text-anchor="middle" fill="#3ecf8e" font-family="Inter" font-size="12" font-weight="500">Objetivo</text>
+        <text x="87" y="99" text-anchor="middle" fill="#898989" font-family="Source Code Pro" font-size="10">contexto mínimo</text>
+
+        <rect x="190" y="55" width="135" height="60" rx="8" fill="none" stroke="#2e2e2e" stroke-width="1.5"/>
+        <text x="257" y="80" text-anchor="middle" fill="#fafafa" font-family="Inter" font-size="12" font-weight="500">Execução</text>
+        <text x="257" y="99" text-anchor="middle" fill="#898989" font-family="Source Code Pro" font-size="10">estado cresce</text>
+
+        <rect x="360" y="55" width="135" height="60" rx="8" fill="none" stroke="#eab308" stroke-width="1.5"/>
+        <text x="427" y="80" text-anchor="middle" fill="#eab308" font-family="Inter" font-size="12" font-weight="500">Retenção</text>
+        <text x="427" y="99" text-anchor="middle" fill="#898989" font-family="Source Code Pro" font-size="10">compactar / persistir</text>
+
+        <rect x="530" y="55" width="145" height="60" rx="8" fill="none" stroke="hsl(251,63%,63%)" stroke-width="1.5"/>
+        <text x="602" y="80" text-anchor="middle" fill="hsl(251,63%,63%)" font-family="Inter" font-size="12" font-weight="500">Próxima tarefa</text>
+        <text x="602" y="99" text-anchor="middle" fill="#898989" font-family="Source Code Pro" font-size="10">novo contexto</text>
+
+        <line x1="155" y1="85" x2="185" y2="85" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#arrTokens)"/>
+        <line x1="325" y1="85" x2="355" y2="85" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#arrTokens)"/>
+        <line x1="495" y1="85" x2="525" y2="85" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#arrTokens)"/>
+        <text x="350" y="150" text-anchor="middle" fill="#4d4d4d" font-family="Source Code Pro" font-size="11">contexto é memória de trabalho, não armazenamento permanente</text>
+      </svg>
+    </div>
+
+    <h3>Sessões devem possuir escopo</h3>
+    <p>Uma prática eficiente é associar cada sessão a um objetivo relativamente autocontido. Planejamento, investigação, implementação e validação podem coexistir quando pertencem à mesma tarefa; ao mudar significativamente de objetivo, iniciar um novo contexto tende a ser mais eficiente do que transportar indefinidamente todo o histórico anterior.</p>
+
+    <div class="code-block code-block--prompt">
+      <div class="code-block-header"><span class="code-block-label">Regra operacional</span></div>
+      <pre>1 sessão = 1 objetivo principal
+
+Objetivo concluído  → documentar o estado útil
+Nova tarefa         → nova sessão ou /clear
+Mesma tarefa        → manter ou compactar conforme necessário</pre>
+    </div>
+
+    <h3>Compactação e limpeza são operações diferentes</h3>
+    <p><strong style="color:var(--fg)">Compactar</strong> preserva uma representação resumida do estado atual. É adequado quando existe continuidade lógica entre a fase anterior e a próxima.</p>
+    <p><strong style="color:var(--fg)">Limpar</strong> remove o contexto da sessão. É adequado quando o novo objetivo não depende do histórico acumulado.</p>
+
+    <div class="table-wrap"><table>
+      <thead><tr><th>Situação</th><th>Ação preferencial</th><th>Motivo</th></tr></thead>
+      <tbody>
+        <tr><td>Mesma tarefa, nova fase</td><td><code>/compact</code></td><td>Preserva decisões relevantes e reduz histórico intermediário</td></tr>
+        <tr><td>Mudança real de objetivo</td><td><code>/clear</code> ou nova sessão</td><td>Evita carregar contexto irrelevante</td></tr>
+        <tr><td>Estado precisa sobreviver à sessão</td><td>Persistir em arquivo</td><td>Move memória durável para fora da conversa</td></tr>
+        <tr><td>Contexto ainda pequeno e relevante</td><td>Continuar</td><td>Compactação precoce também pode perder detalhes úteis</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="callout--warn callout">
+      <strong>Atenção:</strong> compactação é uma operação de retenção seletiva, não apenas um mecanismo de emergência. Resumir com uma instrução explícita sobre o que preservar tende a ser mais previsível do que depender exclusivamente da compactação automática.
+    </div>
+
+    <h3>Externalização de estado</h3>
+    <p>Nem todo conhecimento necessário ao agente precisa permanecer no histórico. Informações duráveis podem ser convertidas em artefatos persistentes, como especificações, planos de implementação, decisões arquiteturais, documentação e arquivos de memória do projeto.</p>
+
+    <div class="code-block code-block--schema">
+      <div class="code-block-header"><span class="code-block-label">Padrão de externalização</span></div>
+      <pre>histórico conversacional
+        ↓
+estado estruturado
+        ↓
+CLAUDE.md / spec.md / architecture.md / plan.md
+        ↓
+nova sessão com contexto mínimo</pre>
+    </div>
+
+    <p>Esse padrão transforma a conversa em memória de trabalho temporária e os arquivos em memória durável. Além de reduzir tokens, melhora rastreabilidade: decisões importantes deixam de existir apenas dentro de uma sessão efêmera.</p>
+
+    <h3>Subagentes e multiplicação de contexto</h3>
+    <p>Subagentes são úteis para isolar trabalho pesado, especializar funções e paralelizar tarefas independentes. Entretanto, cada agente pode possuir sua própria janela de contexto, instruções e sequência de inferências. O paralelismo agêntico pode, portanto, produzir também <strong style="color:var(--fg)">paralelismo de consumo</strong>.</p>
+
+    <div class="code-block code-block--output">
+      <div class="code-block-header"><span class="code-block-label">Multiplicação de contexto</span></div>
+      <pre>Agente principal
+     │
+     ├── Subagente A → contexto A
+     ├── Subagente B → contexto B
+     └── Subagente C → contexto C</pre>
+    </div>
+
+    <p>O critério arquitetural não deve ser “é possível delegar?”, mas <strong style="color:var(--fg)">“há independência suficiente para justificar outra instância de raciocínio?”</strong>. Delegação faz sentido quando reduz ruído no agente principal, permite paralelismo real ou exige uma perspectiva independente.</p>
+
+    <h3>Ferramentas determinísticas antes de agentes</h3>
+    <p>Nem todo problema exige raciocínio probabilístico. Busca textual, execução de testes, compilação, lint, type checking e inspeção de diff são operações que ferramentas tradicionais executam de forma determinística e barata. O LLM deve receber preferencialmente os <strong style="color:var(--fg)">resultados relevantes</strong>, e não substituir ferramentas que já resolvem o problema de forma direta.</p>
+
+    <div class="table-wrap"><table>
+      <thead><tr><th>Necessidade</th><th>Ferramenta preferencial</th><th>Papel do LLM</th></tr></thead>
+      <tbody>
+        <tr><td>Localizar uso de símbolo</td><td><code>rg</code>, grep, IDE</td><td>Interpretar dependências encontradas</td></tr>
+        <tr><td>Validar testes</td><td>Test runner</td><td>Analisar apenas falhas relevantes</td></tr>
+        <tr><td>Checar tipos</td><td>Compiler / type checker</td><td>Explicar e corrigir erros</td></tr>
+        <tr><td>Revisar mudança</td><td><code>git diff</code></td><td>Avaliar impacto e riscos</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Carregamento seletivo de contexto</h3>
+    <p>Solicitações amplas como “analise o projeto inteiro” podem injetar muito mais informação do que o necessário. Uma estratégia mais eficiente é iniciar pelo menor conjunto provável de arquivos, documentos e ferramentas, expandindo a investigação apenas quando surgirem dependências relevantes.</p>
+    <p>O princípio é equivalente a <em>lazy loading</em>: <strong style="color:var(--fg)">carregue contexto quando ele se tornar necessário</strong>.</p>
+
+    <h3>Output também vira contexto</h3>
+    <p>Respostas excessivamente verbosas não consomem apenas tokens de saída. Em sessões longas, elas passam a integrar o histórico e podem ser processadas novamente nas interações seguintes. Para tarefas operacionais, frequentemente basta registrar arquivos alterados, decisões relevantes, testes executados e pendências.</p>
 
     <details>
       <summary>Exemplo: Output verboso vs. conciso (Caveman)</summary>
@@ -1044,12 +1153,83 @@ handle edge cases more gracefully, adding appropriate error handling,
 and ensuring backwards compatibility with the existing API contracts.</pre>
         </div>
         <div class="code-block code-block--prompt">
-          <div class="code-block-header"><span class="code-block-label">✓ Conciso (~14 tokens, −65%)</span></div>
+          <div class="code-block-header"><span class="code-block-label">✓ Conciso (~14 tokens)</span></div>
           <pre>Auth module refactored. Token validation handles edge cases.
 Error handling added. Backward compatible.</pre>
         </div>
       </div>
     </details>
+
+    <h3>Overhead de orquestração</h3>
+    <p>Plugins, skills e frameworks agênticos podem acrescentar disciplina operacional ao harness: brainstorming, planejamento, TDD, revisão, delegação e verificações adicionais. Essas camadas têm valor quando introduzem uma propriedade que o modelo ou o ambiente não oferecem de maneira suficientemente confiável.</p>
+    <p>Entretanto, modelos com capacidades nativas mais avançadas de planejamento e raciocínio criam uma nova variável arquitetural: <strong style="color:var(--fg)">sobreposição de capacidades</strong>.</p>
+
+    <div class="diagram">
+      <svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="arrOver" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#3ecf8e"/></marker></defs>
+        <text x="165" y="25" text-anchor="middle" fill="#fafafa" font-family="Inter" font-size="13" font-weight="500">Modelo deliberativo</text>
+        <rect x="80" y="45" width="170" height="42" rx="8" fill="none" stroke="#3ecf8e"/>
+        <text x="165" y="71" text-anchor="middle" fill="#b4b4b4" font-family="Inter" font-size="11">analisar → planejar</text>
+        <rect x="80" y="115" width="170" height="42" rx="8" fill="none" stroke="#3ecf8e"/>
+        <text x="165" y="141" text-anchor="middle" fill="#b4b4b4" font-family="Inter" font-size="11">executar → verificar</text>
+        <line x1="165" y1="87" x2="165" y2="110" stroke="#3ecf8e" marker-end="url(#arrOver)"/>
+
+        <text x="515" y="25" text-anchor="middle" fill="#fafafa" font-family="Inter" font-size="13" font-weight="500">Modelo + workflow prescritivo</text>
+        <rect x="410" y="45" width="210" height="34" rx="8" fill="none" stroke="#eab308"/>
+        <text x="515" y="66" text-anchor="middle" fill="#eab308" font-family="Inter" font-size="11">brainstorm / spec</text>
+        <rect x="410" y="94" width="210" height="34" rx="8" fill="none" stroke="#eab308"/>
+        <text x="515" y="115" text-anchor="middle" fill="#eab308" font-family="Inter" font-size="11">planejamento adicional</text>
+        <rect x="410" y="143" width="210" height="34" rx="8" fill="none" stroke="hsl(251,63%,63%)"/>
+        <text x="515" y="164" text-anchor="middle" fill="hsl(251,63%,63%)" font-family="Inter" font-size="11">delegação / TDD</text>
+        <rect x="410" y="192" width="210" height="34" rx="8" fill="none" stroke="#dc2626"/>
+        <text x="515" y="213" text-anchor="middle" fill="#dc2626" font-family="Inter" font-size="11">review / verificação extra</text>
+        <line x1="515" y1="79" x2="515" y2="89" stroke="#3ecf8e" marker-end="url(#arrOver)"/>
+        <line x1="515" y1="128" x2="515" y2="138" stroke="#3ecf8e" marker-end="url(#arrOver)"/>
+        <line x1="515" y1="177" x2="515" y2="187" stroke="#3ecf8e" marker-end="url(#arrOver)"/>
+      </svg>
+    </div>
+
+    <h3>Overthinking agêntico</h3>
+    <p>Quando uma camada de orquestração força o modelo a repetir operações cognitivas que ele já executaria adequadamente, ocorre uma forma de <strong style="color:var(--fg)">overthinking agêntico</strong>: múltiplas camadas do sistema realizam funções equivalentes de planejamento, decomposição, crítica ou validação.</p>
+    <p>Isso não torna o plugin ou framework “ruim”. O mesmo mecanismo pode aumentar muito a robustez de uma tarefa complexa e, ao mesmo tempo, ser redundante em uma alteração simples. A avaliação deve considerar <strong style="color:var(--fg)">modelo + harness + tarefa</strong>, e não apenas a ferramenta isoladamente.</p>
+
+    <div class="table-wrap"><table>
+      <thead><tr><th>Cenário</th><th>Valor da orquestração adicional</th><th>Risco principal</th></tr></thead>
+      <tbody>
+        <tr><td>Modelo simples + tarefa complexa</td><td>Alto</td><td>Baixa autonomia sem estrutura</td></tr>
+        <tr><td>Modelo avançado + tarefa complexa e crítica</td><td>Moderado a alto</td><td>Processo precisa justificar custo</td></tr>
+        <tr><td>Modelo avançado + tarefa simples</td><td>Baixo</td><td>Overthinking e aumento de tokens</td></tr>
+        <tr><td>Modelo avançado + harness já prescritivo</td><td>Variável</td><td>Duplicação de planejamento e validação</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="callout--warn callout">
+      <strong>Pergunta de arquitetura:</strong> este plugin está adicionando uma capacidade que o modelo não possui — ou apenas repetindo uma capacidade que ele já executa de forma suficiente?
+    </div>
+
+    <h3>Princípio da proporcionalidade</h3>
+    <p>A sofisticação máxima do sistema não deve ser o estado padrão. Cada camada — plugin, skill, subagente, ferramenta ou etapa de reflexão — deve justificar seu custo através de algum ganho observável em qualidade, confiabilidade, isolamento, paralelismo ou controle.</p>
+
+    <div class="code-block code-block--prompt">
+      <div class="code-block-header"><span class="code-block-label">Escalonamento de processo</span></div>
+      <pre>Tarefa simples       → modelo + ferramentas
+Tarefa intermediária → planejamento leve + validação
+Tarefa complexa      → workflow estruturado + isolamento de contexto
+Tarefa paralelizável → múltiplos agentes
+Tarefa crítica       → planejamento + execução + revisão independente</pre>
+    </div>
+
+    <h3>Regras operacionais</h3>
+    <p><strong style="color:var(--fg)">Foco da sessão:</strong> mantenha uma tarefa principal por chat e encerre a sessão quando o objetivo mudar significativamente.</p>
+    <p><strong style="color:var(--fg)">Compactação consciente:</strong> compacte entre fases quando houver continuidade e indique explicitamente quais decisões, nomes, restrições e pendências devem sobreviver.</p>
+    <p><strong style="color:var(--fg)">Memória externa:</strong> mova conhecimento durável para arquivos em vez de depender de um histórico crescente.</p>
+    <p><strong style="color:var(--fg)">Subagentes seletivos:</strong> use delegação quando houver paralelismo real, isolamento de contexto ou necessidade de revisão independente.</p>
+    <p><strong style="color:var(--fg)">Ferramenta certa:</strong> prefira mecanismos determinísticos para busca, testes e validações simples; reserve o LLM para interpretação e decisão.</p>
+    <p><strong style="color:var(--fg)">Orquestração proporcional:</strong> aplique plugins e workflows na intensidade compatível com complexidade, risco e capacidade nativa do modelo.</p>
+
+    <div class="callout">
+      <strong>Síntese:</strong> contexto acumulado, paralelismo desnecessário e processo redundante são três fontes independentes de desperdício. Otimizar tokens significa administrar as três — não apenas escrever prompts menores.
+    </div>
   </div></section>
 
   <!-- 11 — PLUGINS -->
@@ -1064,7 +1244,7 @@ Error handling added. Backward compatible.</pre>
           <h4>Superpowers</h4>
           <span class="plugin-card-tag">Workflow</span>
         </div>
-        <p>Impõe disciplina de engenharia: brainstorm → spec → TDD (red-green-refactor) → code review. 14 skills que eliminam o "só começa a codar" — o maior antipadrão de agentes. O plugin mais estrelado do ecossistema.</p>
+        <p>Estrutura o trabalho em um fluxo disciplinado de brainstorm → spec → TDD (red-green-refactor) → code review. É especialmente útil quando a tarefa exige gates explícitos, rastreabilidade e revisão sistemática. Em modelos já deliberativos ou tarefas simples, porém, parte desse processo pode sobrepor capacidades nativas e aumentar o overhead de orquestração; use de forma proporcional à complexidade e ao risco.</p>
         <a class="plugin-card-link" href="https://github.com/obra/superpowers" target="_blank" rel="noopener">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
           obra/superpowers
@@ -1157,7 +1337,7 @@ Error handling added. Backward compatible.</pre>
     </div>
 
     <div class="callout">
-      <strong>Taxonomia:</strong> Plugins de <em>workflow</em> mudam o processo (como você trabalha). Plugins de <em>orquestração multi-agente</em> mudam a qualidade (quem escreve e quem revisa). Eles resolvem problemas diferentes e podem ser combinados.
+      <strong>Taxonomia:</strong> Plugins de <em>workflow</em> mudam o processo; plugins de <em>orquestração multi-agente</em> mudam a divisão e revisão do trabalho; plugins de <em>contexto</em> alteram o que entra na janela. Eles podem ser combinados, mas cada camada adiciona custo operacional e deve justificar sua presença.
     </div>
   </div></section>
 
