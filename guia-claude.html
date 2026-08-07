@@ -539,7 +539,8 @@ tr:last-child td { border-bottom: none; }
   <div class="sidebar-block-label">III · Ecossistema</div>
   <a href="#tokens"><span class="num">10</span> Economia de Tokens</a>
   <a href="#plugins"><span class="num">11</span> Plugins Essenciais</a>
-  <a href="#glossario"><span class="num">12</span> Glossário</a>
+  <a href="#funcionalidades"><span class="num">12</span> 12 Funcionalidades do Claude Code</a>
+  <a href="#glossario"><span class="num">13</span> Glossário</a>
 </nav>
 
 <!-- Main content -->
@@ -552,7 +553,7 @@ tr:last-child td { border-bottom: none; }
       <h1>Fundamentos de IA e<br>Ecossistema <em>Claude</em></h1>
       <p class="hero-sub">Arquitetura, alinhamento e engenharia de agentes. Um guia atemporal, imune ao hype, focado nos princípios que governam sistemas de inteligência artificial.</p>
       <div class="hero-meta">
-        <div class="hero-meta-item"><strong>12</strong> módulos</div>
+        <div class="hero-meta-item"><strong>13</strong> módulos</div>
         <div class="hero-meta-item"><strong>3</strong> blocos temáticos</div>
         <div class="hero-meta-item"><strong>2026</strong> atualizado</div>
       </div>
@@ -870,6 +871,9 @@ tr:last-child td { border-bottom: none; }
 
     <h3>Quando usar RAG</h3>
     <p>RAG é ideal quando o modelo precisa de dados que mudam frequentemente (preços, estoque, documentação), são específicos da organização (contratos, políticas internas), ou são muito volumosos para caber no treinamento. Não é a melhor opção quando o conhecimento é estável e o modelo já o possui — nesses casos, fine-tuning ou prompt bem estruturado podem ser mais eficientes.</p>
+
+    <h3>RAG Agêntico</h3>
+    <p>O RAG tradicional executa uma única recuperação estática por pergunta — busca, injeta, gera. É simples, mas rígido: não adapta a estratégia à complexidade da pergunta nem corrige uma busca ruim. O <strong style="color:var(--fg)">RAG Agêntico</strong> resolve isso colocando um agente no comando do processo de recuperação, não apenas da geração final. A consulta chega a um agente que mantém memória de curto e longo prazo sobre o contexto da conversa, formula uma estratégia de busca e escolhe as ferramentas certas para o caso — busca vetorial, múltiplos subagentes especializados ou servidores MCP conectados a fontes distintas. Só depois de reunir e combinar esses dados com a pergunta original e o system prompt é que o resultado é passado ao LLM para gerar a resposta final. Na prática, isso permite re-buscar quando o primeiro resultado é insuficiente, dividir perguntas compostas em sub-consultas, e combinar fontes heterogêneas — algo que um pipeline RAG estático não consegue fazer sozinho.</p>
   </div></section>
 
   <!-- 07 — AGENTES -->
@@ -1157,9 +1161,118 @@ Error handling added. Backward compatible.</pre>
     </div>
   </div></section>
 
-  <!-- 12 — GLOSSÁRIO -->
-  <section class="section" id="glossario"><div class="container">
+  <!-- 12 — 12 FUNCIONALIDADES DO CLAUDE CODE -->
+  <section class="section" id="funcionalidades"><div class="container">
     <p class="section-eyebrow">Módulo 12</p>
+    <h2>12 Funcionalidades do Claude Code Que Todo Engenheiro Deveria Conhecer</h2>
+    <p>Os módulos anteriores cobrem a teoria — como o modelo pensa, como agentes planejam, como o harness orquestra. Esta seção é o inventário prático: as doze funcionalidades do Claude Code que, juntas, transformam esses conceitos em um fluxo de trabalho do dia a dia. Cada uma resolve um problema específico de controle, memória ou escala.</p>
+
+    <div class="plugin-grid">
+      <div class="plugin-card">
+        <div class="plugin-card-head">
+          <h4>01 · CLAUDE.md</h4>
+          <span class="plugin-card-tag">Memória</span>
+        </div>
+        <p>Arquivo de memória do projeto, lido automaticamente no início de cada sessão — antes de qualquer prompt. Nele ficam convenções de código, comandos de build/teste, arquitetura e regras de estilo que você não quer repetir a cada conversa. A prática recomendada é mantê-lo enxuto (idealmente abaixo de 200 linhas): conteúdo em excesso consome contexto e reduz a aderência às instruções. Para regras que só importam em certos tipos de arquivo, prefira <code>.claude/rules/</code> — carregado automaticamente junto do CLAUDE.md principal, sem import explícito. Referências via <code>@caminho</code> também funcionam, mas carregam no início da sessão, não sob demanda.</p>
+      </div>
+
+      <div class="plugin-card">
+        <div class="plugin-card-head">
+          <h4>02 · Permissions</h4>
+          <span class="plugin-card-tag">Controle</span>
+        </div>
+        <p>Decide o que o Claude Code pode tocar sem perguntar. Quatro modos: <code>default</code> (lê livremente, pede confirmação para editar ou executar comandos), <code>plan</code> (só pesquisa e propõe, nunca modifica), <code>acceptEdits</code> (aplica edições de arquivo sem prompt, para revisão posterior via <code>git diff</code>) e <code>bypassPermissions</code> (remove a camada de permissão inteira). <code>Shift+Tab</code> alterna entre os três primeiros durante a sessão. Mesmo em modos permissivos, caminhos protegidos — como os próprios arquivos de configuração do Claude — nunca são aprovados automaticamente, exceto em bypass total.</p>
+      </div>
+
+      <div class="plugin-card">
+        <div class="plugin-card-head">
+          <h4>03 · Plan Mode</h4>
+          <span class="plugin-card-tag">Segurança</span>
+        </div>
+        <p>Modo somente-leitura: o Claude Code explora arquivos, roda comandos para investigar a base de código e escreve um plano de execução — mas não edita nada. O plano fica disponível para revisão, edição ou rejeição antes de qualquer alteração real, essencial em tarefas de maior risco ou escopo ambíguo. É o modo de entrada recomendado para trabalho complexo: pensar antes de agir reduz retrabalho e evita que o agente tome decisões arquiteturais importantes sem supervisão humana. Só depois da aprovação explícita o agente sai do modo plano e começa a executar de fato.</p>
+      </div>
+
+      <div class="plugin-card">
+        <div class="plugin-card-head">
+          <h4>04 · Checkpoints</h4>
+          <span class="plugin-card-tag">Reversibilidade</span>
+        </div>
+        <p>Antes de cada prompt e de qualquer edição, o Claude Code tira um snapshot automático e incremental dos arquivos — só o que mudou de fato gera uma nova versão. Os últimos 100 checkpoints da sessão ficam disponíveis. Para reverter, digite <code>/rewind</code> ou pressione Esc duas vezes: um menu permite restaurar o código, a conversa ou ambos até o ponto escolhido. É a rede de segurança que torna experimentação agressiva viável — errar deixa de ser caro. Vem ativado por padrão, mas pode ser desligado via variável de ambiente em sessões sensíveis a performance ou privacidade.</p>
+      </div>
+
+      <div class="plugin-card">
+        <div class="plugin-card-head">
+          <h4>05 · Skills</h4>
+          <span class="plugin-card-tag">Automação</span>
+        </div>
+        <p>Uma Skill é uma pasta com um arquivo <code>SKILL.md</code> — cabeçalho YAML mais instruções em Markdown — que ensina um procedimento reutilizável: uma convenção, um checklist, um fluxo de trabalho inteiro. O campo <code>description</code> do frontmatter decide quando ela é ativada: o Claude Code lê nome e descrição de todas as skills disponíveis a cada sessão, mas só carrega o corpo completo quando a tarefa atual bate com aquela descrição — carregamento preguiçoso que economiza tokens. Vivem em <code>~/.claude/skills/</code> (pessoais) ou <code>.claude/skills/</code> (projeto) e podem ser compostas: uma skill pode invocar outra.</p>
+      </div>
+
+      <div class="plugin-card">
+        <div class="plugin-card-head">
+          <h4>06 · Hooks</h4>
+          <span class="plugin-card-tag">Determinismo</span>
+        </div>
+        <p>Scripts de shell disparados em pontos específicos do ciclo de vida do agente — a documentação oficial já cobre cerca de 30 eventos, agrupados em três cadências: uma vez por sessão (<code>SessionStart</code>, <code>SessionEnd</code>), uma vez por turno (<code>UserPromptSubmit</code>, <code>Stop</code>) e a cada chamada de ferramenta (<code>PreToolUse</code>, <code>PostToolUse</code>). Um hook <code>PreToolUse</code> pode, por exemplo, bloquear a leitura de arquivos <code>.env</code> retornando código de saída 2. É a camada determinística que garante regras não-negociáveis — linting automático, bloqueio de comandos perigosos, notificações — sem depender do agente "lembrar" de segui-las.</p>
+      </div>
+
+      <div class="plugin-card">
+        <div class="plugin-card-head">
+          <h4>07 · MCP</h4>
+          <span class="plugin-card-tag">Integração</span>
+        </div>
+        <p>O Model Context Protocol é uma especificação aberta que padroniza como agentes descobrem e usam ferramentas externas — uma espécie de porta USB-C para IA: um único padrão de conexão em vez de integração customizada para cada serviço. Um servidor MCP expõe três primitivas — tools, resources e prompts — que o Claude Code consome como cliente, via <code>stdio</code> para servidores locais (sistema de arquivos, Git) ou HTTP+SSE para serviços remotos (bancos de dados, APIs de terceiros). Cada servidor conectado adiciona seus schemas à janela de contexto, então MCPs devem ser escolhidos com critério.</p>
+      </div>
+
+      <div class="plugin-card">
+        <div class="plugin-card-head">
+          <h4>08 · Plugins</h4>
+          <span class="plugin-card-tag">Extensão</span>
+        </div>
+        <p>Um plugin empacota skills, comandos, subagentes, hooks e configuração de servidores MCP em uma unidade instalável e versionada. A estrutura mínima é um <code>.claude-plugin/plugin.json</code> com os metadados; um marketplace é apenas um repositório Git com um <code>marketplace.json</code> listando plugins disponíveis, sem registro central. A Anthropic mantém um marketplace oficial (<code>anthropics/claude-plugins-official</code>) com extensões de primeira parte, ao lado de milhares de plugins da comunidade — veja o <a href="#plugins" style="color:var(--accent);text-decoration:none">Módulo 11</a> para exemplos concretos.</p>
+      </div>
+
+      <div class="plugin-card">
+        <div class="plugin-card-head">
+          <h4>09 · Context</h4>
+          <span class="plugin-card-tag">Gestão</span>
+        </div>
+        <p>A janela de contexto tem um teto de tokens, e cada componente da sessão — system prompt, schemas de ferramentas, CLAUDE.md, histórico — disputa esse espaço finito. O comando <code>/context</code> mostra um grid colorido com o uso atual, permitindo decidir quando agir. A prática recomendada é rodar <code>/compact</code> por volta de 70–75% de ocupação, sempre com instrução explícita sobre o que preservar — sem isso, o resumo genérico tende a descartar detalhes importantes. Para trocar de tarefa completamente, <code>/clear</code> zera a sessão em vez de arrastar contexto irrelevante.</p>
+      </div>
+
+      <div class="plugin-card">
+        <div class="plugin-card-head">
+          <h4>10 · Slash Commands</h4>
+          <span class="plugin-card-tag">Atalhos</span>
+        </div>
+        <p>Comandos como <code>/compact</code>, <code>/context</code> e <code>/rewind</code> já vêm prontos, mas o recurso mais poderoso é criar os seus: um arquivo Markdown em <code>.claude/commands/</code> (projeto) ou <code>~/.claude/commands/</code> (pessoal) vira automaticamente um comando <code>/nome-do-arquivo</code>. O corpo do arquivo é o prompt; frontmatter YAML opcional controla argumentos, ferramentas permitidas e até o modelo que executa. O placeholder <code>$ARGUMENTS</code> captura texto digitado após o comando, e o prefixo <code>!</code> injeta saída de shell ao vivo no prompt — por exemplo, <code>!git diff --cached</code> para revisar automaticamente o que está staged.</p>
+      </div>
+
+      <div class="plugin-card">
+        <div class="plugin-card-head">
+          <h4>11 · Compaction</h4>
+          <span class="plugin-card-tag">Tokens</span>
+        </div>
+        <p>Mecanismo que condensa uma conversa longa em um resumo denso para liberar espaço na janela de contexto — disparado manualmente via <code>/compact</code> ou automaticamente quando o limite se aproxima. A diferença é o controle: a compactação automática decide sozinha o que manter e costuma descartar nomes de variáveis, decisões intermediárias e instruções de estilo que pareciam triviais. A manual, com instrução explícita sobre o que preservar, produz resultados muito mais previsíveis. Para sessões longas e críticas, resumir para um arquivo externo, rodar <code>/clear</code> e recomeçar com esse resumo colado dá controle total sobre o que sobrevive.</p>
+      </div>
+
+      <div class="plugin-card">
+        <div class="plugin-card-head">
+          <h4>12 · Subagents</h4>
+          <span class="plugin-card-tag">Paralelismo</span>
+        </div>
+        <p>Um subagente é uma instância isolada do Claude Code — com sua própria janela de contexto, system prompt especializado, permissões de ferramentas e até modelo próprio — disparada pela ferramenta <code>Agent</code> (o antigo <code>Task</code>) dentro da sessão principal. Vale a pena para trabalho autocontido, paralelizável e pesado em contexto: um subagente pode vasculhar centenas de arquivos e devolver só a síntese, sem inundar a conversa principal. Por padrão, o Claude Code prefere execução sequencial — é preciso instruir explicitamente no CLAUDE.md quantos subagentes usar e o escopo de cada um para ativar paralelismo real.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Como as peças se encaixam:</strong> CLAUDE.md e Skills alimentam o contexto; Permissions e Plan Mode controlam o raio de ação; Checkpoints e Compaction lidam com reversibilidade e memória finita; MCP, Hooks e Plugins conectam o agente ao mundo externo; Slash Commands e Subagents são os mecanismos de execução — manual e paralela, respectivamente.
+    </div>
+  </div></section>
+
+  <!-- 13 — GLOSSÁRIO -->
+  <section class="section" id="glossario"><div class="container">
+    <p class="section-eyebrow">Módulo 13</p>
     <h2>Glossário & Referência Rápida</h2>
 
     <div class="glossary-item">
