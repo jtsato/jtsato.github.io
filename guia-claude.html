@@ -16,7 +16,7 @@
   --fg: #fafafa;
   --fg-2: #b4b4b4;
   --muted: #898989;
-  --meta: #4d4d4d;
+  --meta: #808080;
   --border: #2e2e2e;
   --border-soft: #242424;
   --border-bright: #363636;
@@ -68,6 +68,24 @@ body {
   width: 0%; transition: width 80ms linear;
 }
 
+/* ── Skip link ── */
+.skip-link {
+  position: absolute; left: 8px; top: -60px; z-index: 1001;
+  background: var(--accent); color: var(--accent-on);
+  padding: 10px 18px; border-radius: var(--radius-sm);
+  font-size: var(--text-sm); font-weight: 600;
+  text-decoration: none;
+  transition: top var(--motion-fast) var(--ease);
+}
+.skip-link:focus { top: 8px; }
+
+/* ── Visually hidden (screen-reader only) ── */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
 /* ── Sidebar ── */
 .sidebar {
   position: fixed; top: 0; left: 0; z-index: 100;
@@ -82,7 +100,7 @@ body {
   border-bottom: 1px solid var(--border-soft);
   margin-bottom: 12px;
 }
-.sidebar-logo h2 {
+.sidebar-logo p {
   font-size: var(--text-sm);
   font-weight: 500;
   color: var(--fg);
@@ -220,7 +238,7 @@ body {
   text-align: center;
   border-bottom: 1px solid var(--border);
 }
-.block-divider h3 {
+.block-divider h2 {
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   font-weight: 500;
@@ -471,16 +489,25 @@ tr:last-child td { border-bottom: none; }
 /* ── Mobile ── */
 .menu-toggle {
   display: none;
-  position: fixed; top: 12px; left: 12px; z-index: 200;
+  position: fixed; top: 10px; left: 10px; z-index: 200;
   background: var(--bg-deep);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--fg);
-  width: 40px; height: 40px;
+  width: 44px; height: 44px;
   font-size: 18px;
   cursor: pointer;
 }
+.sidebar-backdrop {
+  display: none;
+  position: fixed; inset: 0; z-index: 99;
+  background: rgba(0,0,0,0.5);
+  opacity: 0;
+  transition: opacity var(--motion-base) var(--ease);
+}
+body.sidebar-lock { overflow: hidden; }
 @media (max-width: 900px) {
+  .sidebar-backdrop.visible { display: block; opacity: 1; }
   .sidebar {
     transform: translateX(-100%);
     transition: transform var(--motion-base) var(--ease);
@@ -493,6 +520,17 @@ tr:last-child td { border-bottom: none; }
   .plugin-grid { grid-template-columns: 1fr; }
   .hero { padding: 80px 0 60px; }
   .section { padding: 48px 0; }
+  .diagram {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    text-align: left;
+  }
+  .diagram svg {
+    max-width: none;
+    width: auto;
+    min-width: 560px;
+  }
+  .code-block-copy { padding: 6px 14px; }
 }
 
 /* ── Reduced motion ── */
@@ -510,16 +548,20 @@ tr:last-child td { border-bottom: none; }
 </head>
 <body>
 
+<!-- Skip link -->
+<a class="skip-link" href="#main-content">Pular para o conteúdo principal</a>
+
 <!-- Reading progress -->
 <div id="progress"></div>
 
 <!-- Mobile menu toggle -->
-<button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Menu">☰</button>
+<button class="menu-toggle" id="menuToggle" aria-label="Menu de navegação" aria-expanded="false" aria-controls="sidebar">☰</button>
+<div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
 
 <!-- Sidebar -->
-<nav class="sidebar" id="sidebar">
+<nav class="sidebar" id="sidebar" aria-label="Sumário do guia">
   <div class="sidebar-logo">
-    <h2>Guia de Bolso do Claude</h2>
+    <p>Guia de Bolso do Claude</p>
     <span>Edição Agosto 2026</span>
   </div>
 
@@ -544,7 +586,7 @@ tr:last-child td { border-bottom: none; }
 </nav>
 
 <!-- Main content -->
-<div class="main">
+<main class="main" id="main-content" tabindex="-1">
 
   <!-- HERO -->
   <section class="hero">
@@ -564,7 +606,7 @@ tr:last-child td { border-bottom: none; }
   <!-- BLOCO I — FUNDAMENTOS                  -->
   <!-- ═══════════════════════════════════════ -->
   <div class="block-divider"><div class="container">
-    <h3>Bloco I — Fundamentos</h3>
+    <h2>Bloco I — Fundamentos</h2>
     <p>A teoria pura que não envelhece</p>
   </div></div>
 
@@ -584,7 +626,7 @@ tr:last-child td { border-bottom: none; }
     <p>Esta é a revolução dos Transformers. O <strong style="color:var(--fg)">mecanismo de atenção</strong> permite que o modelo analise a relação de dependência entre todos os tokens simultaneamente, independentemente da distância física entre eles no texto. Ele atribui "pesos" de importância dinâmicos — permitindo entender o contexto de uma palavra no final de um documento referenciando um evento no início.</p>
 
     <div class="diagram">
-      <svg viewBox="0 0 700 180" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 700 180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama do fluxo de processamento: Texto de entrada segue para Tokenização, depois Embeddings, depois Atenção, gerando o próximo token.">
         <defs>
           <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#3ecf8e"/></marker>
         </defs>
@@ -611,7 +653,7 @@ tr:last-child td { border-bottom: none; }
         <line x1="470" y1="90" x2="515" y2="90" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#arr)"/>
 
         <!-- Output label -->
-        <text x="580" y="150" text-anchor="middle" fill="#4d4d4d" font-family="Source Code Pro" font-size="11">→ próximo token</text>
+        <text x="580" y="150" text-anchor="middle" fill="#808080" font-family="Source Code Pro" font-size="11">→ próximo token</text>
       </svg>
     </div>
 
@@ -702,7 +744,7 @@ tr:last-child td { border-bottom: none; }
   <!-- BLOCO II — ENGENHARIA                  -->
   <!-- ═══════════════════════════════════════ -->
   <div class="block-divider"><div class="container">
-    <h3>Bloco II — Engenharia</h3>
+    <h2>Bloco II — Engenharia</h2>
     <p>Como construir com IA</p>
   </div></div>
 
@@ -716,7 +758,7 @@ tr:last-child td { border-bottom: none; }
     <p>O Claude foi massivamente treinado para processar blocos encapsulados em tags XML. O uso dessas tags cria delimitações cristalinas entre instrução, dados e formato esperado, prevenindo confusão semântica.</p>
 
     <div class="code-block code-block--prompt">
-      <div class="code-block-header"><span class="code-block-label">Template XML — System Prompt</span><button class="code-block-copy" onclick="copyCode(this)">Copiar</button></div>
+      <div class="code-block-header"><span class="code-block-label">Template XML — System Prompt</span><button class="code-block-copy" onclick="copyCode(this)" aria-live="polite">Copiar</button></div>
       <pre><span class="tag">&lt;sistema&gt;</span>
   Você é um assistente especializado em análise financeira.
   Responda sempre em português brasileiro.
@@ -744,7 +786,7 @@ tr:last-child td { border-bottom: none; }
       <summary>Exemplo: Few-Shot para classificação de sentimento</summary>
       <div class="detail-content">
         <div class="code-block code-block--prompt">
-          <div class="code-block-header"><span class="code-block-label">Prompt Few-Shot</span><button class="code-block-copy" onclick="copyCode(this)">Copiar</button></div>
+          <div class="code-block-header"><span class="code-block-label">Prompt Few-Shot</span><button class="code-block-copy" onclick="copyCode(this)" aria-live="polite">Copiar</button></div>
           <pre>Classifique o sentimento do texto como POSITIVO, NEGATIVO ou NEUTRO.
 
 <span class="tag">&lt;exemplos&gt;</span>
@@ -778,7 +820,7 @@ tr:last-child td { border-bottom: none; }
 
     <h3>O ciclo completo</h3>
     <div class="diagram">
-      <svg viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama do ciclo de Tool Use em quatro etapas: 1. Schema, o desenvolvedor define as ferramentas; 2. Invocação, o Claude emite um pedido em JSON; 3. Execução, o cliente executa a ação; 4. Síntese, o Claude lê o resultado e gera a resposta final ao usuário.">
         <defs><marker id="arr2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#3ecf8e"/></marker></defs>
         <!-- Step 1 -->
         <rect x="10" y="30" width="150" height="70" rx="8" fill="none" stroke="#eab308" stroke-width="1.5"/>
@@ -801,8 +843,8 @@ tr:last-child td { border-bottom: none; }
         <line x1="340" y1="65" x2="365" y2="65" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#arr2)"/>
         <line x1="520" y1="65" x2="545" y2="65" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#arr2)"/>
         <!-- Return arrow -->
-        <path d="M620,100 L620,140 L85,140 L85,105" fill="none" stroke="#4d4d4d" stroke-width="1" stroke-dasharray="6,4" marker-end="url(#arr2)"/>
-        <text x="350" y="160" text-anchor="middle" fill="#4d4d4d" font-family="Source Code Pro" font-size="11">resposta final ao usuário</text>
+        <path d="M620,100 L620,140 L85,140 L85,105" fill="none" stroke="#808080" stroke-width="1" stroke-dasharray="6,4" marker-end="url(#arr2)"/>
+        <text x="350" y="160" text-anchor="middle" fill="#808080" font-family="Source Code Pro" font-size="11">resposta final ao usuário</text>
       </svg>
     </div>
 
@@ -810,7 +852,7 @@ tr:last-child td { border-bottom: none; }
       <summary>Exemplo completo: schema de ferramenta + invocação</summary>
       <div class="detail-content">
         <div class="code-block code-block--schema">
-          <div class="code-block-header"><span class="code-block-label">Schema (definição da ferramenta)</span><button class="code-block-copy" onclick="copyCode(this)">Copiar</button></div>
+          <div class="code-block-header"><span class="code-block-label">Schema (definição da ferramenta)</span><button class="code-block-copy" onclick="copyCode(this)" aria-live="polite">Copiar</button></div>
           <pre>{
   <span class="str">"name"</span>: <span class="str">"consultar_clima"</span>,
   <span class="str">"description"</span>: <span class="str">"Retorna a previsão do tempo para uma cidade"</span>,
@@ -845,7 +887,7 @@ tr:last-child td { border-bottom: none; }
     <p>O fluxo de RAG opera em quatro etapas: a pergunta do usuário é convertida em embedding vetorial, comparada contra um banco de dados vetorial para encontrar os trechos mais semanticamente similares, esses trechos são injetados no contexto, e o modelo gera a resposta fundamentada nesses dados reais.</p>
 
     <div class="diagram">
-      <svg viewBox="0 0 700 160" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 700 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama do pipeline RAG: Query é convertida em embedding, segue para Retrieval por busca vetorial, depois Augmentation injeta os trechos encontrados no contexto, e por fim Generation produz a resposta ancorada nos dados.">
         <defs><marker id="arr3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#3ecf8e"/></marker></defs>
         <rect x="10" y="50" width="130" height="55" rx="8" fill="none" stroke="#2e2e2e"/>
         <text x="75" y="73" text-anchor="middle" fill="#fafafa" font-family="Inter" font-size="12" font-weight="500">Query</text>
@@ -971,7 +1013,7 @@ sapato impermeável. Um guarda-chuva compacto ajuda.</pre>
     <p>Um grafo agêntico é composto de <strong style="color:var(--fg)">nós</strong> (tarefas — podem ser código determinístico ou chamadas LLM), <strong style="color:var(--fg)">arestas</strong> (transições entre nós, podendo ser condicionais), e <strong style="color:var(--fg)">estado compartilhado</strong> (dados que fluem pelo grafo e são acessíveis por todos os nós).</p>
 
     <div class="diagram">
-      <svg viewBox="0 0 600 250" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 600 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama de um grafo agêntico: um nó Orquestrador distribui trabalho para os nós Pesquisador, Codificador e Revisor, que convergem em uma etapa de merge e decisão.">
         <defs><marker id="arr4" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#3ecf8e"/></marker></defs>
         <!-- Orchestrator -->
         <rect x="220" y="10" width="160" height="50" rx="8" fill="none" stroke="#3ecf8e" stroke-width="1.5"/>
@@ -991,9 +1033,9 @@ sapato impermeável. Um guarda-chuva compacto ajuda.</pre>
         <line x1="300" y1="60" x2="300" y2="105" stroke="#3ecf8e" stroke-width="1" marker-end="url(#arr4)"/>
         <line x1="340" y1="60" x2="480" y2="105" stroke="#3ecf8e" stroke-width="1" marker-end="url(#arr4)"/>
         <!-- Arrows to merge -->
-        <line x1="120" y1="160" x2="260" y2="200" stroke="#4d4d4d" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr4)"/>
-        <line x1="300" y1="160" x2="300" y2="196" stroke="#4d4d4d" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr4)"/>
-        <line x1="480" y1="160" x2="340" y2="200" stroke="#4d4d4d" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr4)"/>
+        <line x1="120" y1="160" x2="260" y2="200" stroke="#808080" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr4)"/>
+        <line x1="300" y1="160" x2="300" y2="196" stroke="#808080" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr4)"/>
+        <line x1="480" y1="160" x2="340" y2="200" stroke="#808080" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr4)"/>
       </svg>
     </div>
 
@@ -1005,7 +1047,7 @@ sapato impermeável. Um guarda-chuva compacto ajuda.</pre>
   <!-- BLOCO III — ECOSSISTEMA                -->
   <!-- ═══════════════════════════════════════ -->
   <div class="block-divider"><div class="container">
-    <h3>Bloco III — Ecossistema Claude</h3>
+    <h2>Bloco III — Ecossistema Claude</h2>
     <p>Ferramental prático</p>
   </div></div>
 
@@ -1037,7 +1079,7 @@ sapato impermeável. Um guarda-chuva compacto ajuda.</pre>
     <p>Uma sessão agêntica acumula estado progressivamente. Cada interação pode adicionar código-fonte, resultados de ferramentas, decisões, erros, correções e respostas anteriores. Esse histórico possui valor enquanto influencia as próximas decisões. Quando deixa de ser necessário, passa a representar <strong style="color:var(--fg)">contexto residual</strong>.</p>
 
     <div class="diagram">
-      <svg viewBox="0 0 700 190" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 700 190" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama do ciclo de vida do contexto: Objetivo com contexto mínimo, Execução onde o estado cresce, Retenção por compactação ou persistência, e Próxima tarefa com novo contexto. Contexto é memória de trabalho, não armazenamento permanente.">
         <defs><marker id="arrTokens" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#3ecf8e"/></marker></defs>
         <rect x="20" y="55" width="135" height="60" rx="8" fill="none" stroke="#3ecf8e" stroke-width="1.5"/>
         <text x="87" y="80" text-anchor="middle" fill="#3ecf8e" font-family="Inter" font-size="12" font-weight="500">Objetivo</text>
@@ -1058,7 +1100,7 @@ sapato impermeável. Um guarda-chuva compacto ajuda.</pre>
         <line x1="155" y1="85" x2="185" y2="85" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#arrTokens)"/>
         <line x1="325" y1="85" x2="355" y2="85" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#arrTokens)"/>
         <line x1="495" y1="85" x2="525" y2="85" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#arrTokens)"/>
-        <text x="350" y="150" text-anchor="middle" fill="#4d4d4d" font-family="Source Code Pro" font-size="11">contexto é memória de trabalho, não armazenamento permanente</text>
+        <text x="350" y="150" text-anchor="middle" fill="#808080" font-family="Source Code Pro" font-size="11">contexto é memória de trabalho, não armazenamento permanente</text>
       </svg>
     </div>
 
@@ -1165,7 +1207,7 @@ Error handling added. Backward compatible.</pre>
     <p>Entretanto, modelos com capacidades nativas mais avançadas de planejamento e raciocínio criam uma nova variável arquitetural: <strong style="color:var(--fg)">sobreposição de capacidades</strong>.</p>
 
     <div class="diagram">
-      <svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama comparando um modelo deliberativo, que apenas analisa, planeja, executa e verifica, com um modelo acoplado a um workflow prescritivo, que adiciona etapas de brainstorm, planejamento adicional, delegação e revisão extra.">
         <defs><marker id="arrOver" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#3ecf8e"/></marker></defs>
         <text x="165" y="25" text-anchor="middle" fill="#fafafa" font-family="Inter" font-size="13" font-weight="500">Modelo deliberativo</text>
         <rect x="80" y="45" width="170" height="42" rx="8" fill="none" stroke="#3ecf8e"/>
@@ -1246,8 +1288,9 @@ Tarefa crítica       → planejamento + execução + revisão independente</pre
         </div>
         <p>Estrutura o trabalho em um fluxo disciplinado de brainstorm → spec → TDD (red-green-refactor) → code review. É especialmente útil quando a tarefa exige gates explícitos, rastreabilidade e revisão sistemática. Em modelos já deliberativos ou tarefas simples, porém, parte desse processo pode sobrepor capacidades nativas e aumentar o overhead de orquestração; use de forma proporcional à complexidade e ao risco.</p>
         <a class="plugin-card-link" href="https://github.com/obra/superpowers" target="_blank" rel="noopener">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
           obra/superpowers
+          <span class="sr-only"> (abre em nova aba)</span>
         </a>
       </div>
 
@@ -1258,8 +1301,9 @@ Tarefa crítica       → planejamento + execução + revisão independente</pre
         </div>
         <p>Framework de configuração cross-platform (Claude Code, Cursor, Codex, OpenCode). 67 subagentes especializados, 281 skills, memória persistente entre sessões, segurança integrada com AgentShield. Funciona como um "sistema operacional" para o agente.</p>
         <a class="plugin-card-link" href="https://github.com/affaan-m/ecc" target="_blank" rel="noopener">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
           affaan-m/ecc
+          <span class="sr-only"> (abre em nova aba)</span>
         </a>
       </div>
 
@@ -1270,8 +1314,9 @@ Tarefa crítica       → planejamento + execução + revisão independente</pre
         </div>
         <p>Orquestrador de swarm multi-agente. Hierarquia queen/workers, memória vetorial HNSW, federação distribuída entre máquinas. Metodologia SPARC (specification → pseudocode → architecture → refinement → completion). Antes chamado Claude Flow.</p>
         <a class="plugin-card-link" href="https://github.com/ruvnet/ruflo" target="_blank" rel="noopener">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
           ruvnet/ruflo
+          <span class="sr-only"> (abre em nova aba)</span>
         </a>
       </div>
 
@@ -1282,8 +1327,9 @@ Tarefa crítica       → planejamento + execução + revisão independente</pre
         </div>
         <p>MCP server que injeta documentação atualizada e versionada de bibliotecas direto no contexto. Elimina alucinações de API obsoleta — em vez de usar dados de treinamento defasados, puxa a doc live do repositório fonte.</p>
         <a class="plugin-card-link" href="https://github.com/upstash/context7" target="_blank" rel="noopener">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
           upstash/context7
+          <span class="sr-only"> (abre em nova aba)</span>
         </a>
       </div>
 
@@ -1294,8 +1340,9 @@ Tarefa crítica       → planejamento + execução + revisão independente</pre
         </div>
         <p>Skill que reduz ~65% dos output tokens forçando comunicação concisa sem perder precisão técnica. Código, diffs e mensagens de erro permanecem byte-exatos — só a narração é comprimida. Baseado em pesquisa que mostra que brevidade melhora precisão em ~26 pontos.</p>
         <a class="plugin-card-link" href="https://github.com/JuliusBrussee/caveman" target="_blank" rel="noopener">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
           JuliusBrussee/caveman
+          <span class="sr-only"> (abre em nova aba)</span>
         </a>
       </div>
 
@@ -1306,8 +1353,9 @@ Tarefa crítica       → planejamento + execução + revisão independente</pre
         </div>
         <p>Alternativa open-source ao Claude Design. Agent-native e model-agnostic — roda com qualquer CLI (Claude Code, Codex, Cursor). 151+ design systems prontos (Supabase, Stripe, Vercel), export para HTML/PDF/PPTX. Cada skill e design system é um arquivo Markdown editável.</p>
         <a class="plugin-card-link" href="https://github.com/nexu-io/open-design" target="_blank" rel="noopener">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
           nexu-io/open-design
+          <span class="sr-only"> (abre em nova aba)</span>
         </a>
       </div>
 
@@ -1318,8 +1366,9 @@ Tarefa crítica       → planejamento + execução + revisão independente</pre
         </div>
         <p>Plugin first-party da Anthropic. Ensina o agente a produzir UI com identidade visual — tipografia intencional, paleta deliberada, layout que não parece template. O plugin mais instalado do marketplace oficial.</p>
         <a class="plugin-card-link" href="https://github.com/anthropics/claude-plugins-official" target="_blank" rel="noopener">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
           anthropics/claude-plugins-official
+          <span class="sr-only"> (abre em nova aba)</span>
         </a>
       </div>
 
@@ -1330,8 +1379,9 @@ Tarefa crítica       → planejamento + execução + revisão independente</pre
         </div>
         <p>Memória persistente entre sessões. Salva e carrega contexto automaticamente via hooks, eliminando a necessidade de re-explicar o projeto a cada nova sessão. Usa arquivos locais em vez de serviços externos.</p>
         <a class="plugin-card-link" href="https://github.com/thedotmack/claude-mem" target="_blank" rel="noopener">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
           thedotmack/claude-mem
+          <span class="sr-only"> (abre em nova aba)</span>
         </a>
       </div>
     </div>
@@ -1544,7 +1594,7 @@ Tarefa crítica       → planejamento + execução + revisão independente</pre
     <p style="margin-top:4px">Pato Branco, PR</p>
   </div></footer>
 
-</div>
+</main>
 
 <script>
 // Reading progress
@@ -1561,10 +1611,10 @@ const navLinks = document.querySelectorAll('.sidebar a');
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(e => {
     if (e.isIntersecting) {
-      navLinks.forEach(l => l.classList.remove('active'));
+      navLinks.forEach(l => { l.classList.remove('active'); l.removeAttribute('aria-current'); });
       const id = e.target.id;
       const link = document.querySelector(`.sidebar a[href="#${id}"]`);
-      if (link) link.classList.add('active');
+      if (link) { link.classList.add('active'); link.setAttribute('aria-current', 'location'); }
     }
   });
 }, { rootMargin: '-20% 0px -70% 0px' });
@@ -1579,10 +1629,33 @@ function copyCode(btn) {
   });
 }
 
-// Close mobile sidebar on link click
-navLinks.forEach(l => l.addEventListener('click', () => {
-  document.querySelector('.sidebar').classList.remove('open');
-}));
+// Mobile sidebar toggle
+const sidebar = document.getElementById('sidebar');
+const menuToggle = document.getElementById('menuToggle');
+const backdrop = document.getElementById('sidebarBackdrop');
+
+function openSidebar() {
+  sidebar.classList.add('open');
+  backdrop.classList.add('visible');
+  document.body.classList.add('sidebar-lock');
+  menuToggle.setAttribute('aria-expanded', 'true');
+  menuToggle.textContent = '✕';
+}
+function closeSidebar() {
+  sidebar.classList.remove('open');
+  backdrop.classList.remove('visible');
+  document.body.classList.remove('sidebar-lock');
+  menuToggle.setAttribute('aria-expanded', 'false');
+  menuToggle.textContent = '☰';
+}
+menuToggle.addEventListener('click', () => {
+  sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+});
+backdrop.addEventListener('click', closeSidebar);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && sidebar.classList.contains('open')) closeSidebar();
+});
+navLinks.forEach(l => l.addEventListener('click', closeSidebar));
 </script>
 </body>
 </html>
