@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Guia de Bolso do Claude — Fundamentos, Engenharia e Ecossistema</title>
-<meta name="description" content="Guia técnico completo sobre IA e ecossistema Claude. Fundamentos de LLMs, IA Constitucional, Agentes, Harness, Engenharia de Grafos e Plugins.">
+<meta name="description" content="Guia técnico completo sobre IA e ecossistema Claude. Fundamentos de LLMs, agentes, harnesses, Context Engineering, Program Design, software factories agênticas e workflows sustentáveis.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
@@ -486,6 +486,88 @@ tr:last-child td { border-bottom: none; }
   color: var(--meta);
 }
 
+
+/* ── Agentic software engineering additions ── */
+.bullet-list,
+.checklist {
+  margin: 12px 0 20px 20px;
+  color: var(--fg-2);
+}
+.bullet-list li,
+.checklist li {
+  margin: 7px 0;
+  padding-left: 4px;
+}
+.checklist {
+  list-style: none;
+  margin-left: 0;
+}
+.checklist li {
+  position: relative;
+  padding-left: 28px;
+}
+.checklist li::before {
+  content: "□";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--accent);
+  font-family: var(--font-mono);
+}
+.workflow-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.workflow-step {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+.workflow-step .step-num {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.workflow-step strong {
+  color: var(--fg);
+  font-weight: 500;
+}
+.principle-list {
+  counter-reset: principle;
+  margin: 20px 0;
+}
+.principle-item {
+  counter-increment: principle;
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+.principle-item:last-child { border-bottom: none; }
+.principle-item::before {
+  content: counter(principle, decimal-leading-zero);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent);
+  padding-top: 3px;
+}
+.principle-item strong {
+  color: var(--fg);
+  font-weight: 500;
+}
+.source-note {
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+
 /* ── Mobile ── */
 .menu-toggle {
   display: none;
@@ -582,7 +664,15 @@ body.sidebar-lock { overflow: hidden; }
   <a href="#tokens"><span class="num">10</span> Eficiência de Contexto &amp; Tokens</a>
   <a href="#plugins"><span class="num">11</span> Plugins Essenciais</a>
   <a href="#funcionalidades"><span class="num">12</span> 12 Funcionalidades do Claude Code</a>
-  <a href="#glossario"><span class="num">13</span> Glossário</a>
+
+  <div class="sidebar-block-label">IV · Software Agêntico</div>
+  <a href="#agentic-factory"><span class="num">13</span> Agentic Software Factory</a>
+  <a href="#program-design"><span class="num">14</span> Product, Architecture &amp; Program Design</a>
+  <a href="#vertical-feedback"><span class="num">15</span> Vertical Slices &amp; Feedback</a>
+  <a href="#context-engineering"><span class="num">16</span> Context Engineering</a>
+  <a href="#sustentabilidade"><span class="num">17</span> Sustentabilidade &amp; Gargalos</a>
+  <a href="#workflow-agentico"><span class="num">18</span> Workflow &amp; Metodologias</a>
+  <a href="#glossario"><span class="num">19</span> Glossário</a>
 </nav>
 
 <!-- Main content -->
@@ -595,8 +685,8 @@ body.sidebar-lock { overflow: hidden; }
       <h1>Fundamentos de IA e<br>Ecossistema <em>Claude</em></h1>
       <p class="hero-sub">Arquitetura, alinhamento e engenharia de agentes. Um guia atemporal, imune ao hype, focado nos princípios que governam sistemas de inteligência artificial.</p>
       <div class="hero-meta">
-        <div class="hero-meta-item"><strong>13</strong> módulos</div>
-        <div class="hero-meta-item"><strong>3</strong> blocos temáticos</div>
+        <div class="hero-meta-item"><strong>19</strong> módulos</div>
+        <div class="hero-meta-item"><strong>4</strong> blocos temáticos</div>
         <div class="hero-meta-item"><strong>2026</strong> atualizado</div>
       </div>
     </div>
@@ -1384,6 +1474,23 @@ Tarefa crítica       → planejamento + execução + revisão independente</pre
           <span class="sr-only"> (abre em nova aba)</span>
         </a>
       </div>
+
+
+      <div class="plugin-card">
+        <div class="plugin-card-head">
+          <h4>Obsidian Skills</h4>
+          <span class="plugin-card-tag">Conhecimento</span>
+        </div>
+        <p>Integra uma base de conhecimento pessoal no Obsidian ao fluxo do agente, permitindo usar notas e pesquisas como contexto operacional. Nas anotações de origem, a URL do repositório ficou truncada e deve ser validada antes de ser publicada como referência definitiva.</p>
+      </div>
+
+      <div class="plugin-card">
+        <div class="plugin-card-head">
+          <h4>Karpathy Skills</h4>
+          <span class="plugin-card-tag">Workflow</span>
+        </div>
+        <p>Conjunto de práticas inspirado nas diretrizes atribuídas a Andrej Karpathy: pensar antes de codificar, preferir mudanças cirúrgicas e definir critérios claros de sucesso. A referência do repositório também ficou incompleta nas notas de origem.</p>
+      </div>
     </div>
 
     <div class="callout">
@@ -1500,9 +1607,556 @@ Tarefa crítica       → planejamento + execução + revisão independente</pre
     </div>
   </div></section>
 
-  <!-- 13 — GLOSSÁRIO -->
-  <section class="section" id="glossario"><div class="container">
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- BLOCO IV — ENGENHARIA DE SOFTWARE AGÊNTICA -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="block-divider"><div class="container">
+    <h2>Bloco IV — Engenharia de Software Agêntica</h2>
+    <p>Program Design, Context Engineering e software factories sustentáveis</p>
+  </div></div>
+
+  <!-- 13 — AGENTIC SOFTWARE FACTORY -->
+  <section class="section" id="agentic-factory"><div class="container">
     <p class="section-eyebrow">Módulo 13</p>
+    <h2>Da Software Factory à Agentic Software Factory</h2>
+
+    <div class="callout callout--warn">
+      <strong>Base documental:</strong> este bloco incorpora e reorganiza as anotações e a documentação fornecidas junto ao guia. Nomes, datas, produtos, benchmarks, timestamps e atribuições citadas nessas fontes não foram validados externamente nesta edição.
+    </div>
+
+    <p>A adoção de agentes altera principalmente o custo da implementação. Tarefas que antes consumiam horas ou dias podem ser executadas muito mais rapidamente, mas isso não reduz na mesma proporção o tempo necessário para definir o problema, escolher a arquitetura, validar comportamento, revisar riscos e manter o sistema compreensível.</p>
+
+    <div class="code-block code-block--schema">
+      <div class="code-block-header"><span class="code-block-label">Mudança de gargalo</span></div>
+      <pre>Backlog
+  ↓
+Planejamento
+  ↓
+Implementação humana  →  Implementação por agente
+  ↓
+Pull Request
+  ↓
+Code Review
+  ↓
+CI/CD
+  ↓
+Produção
+  ↓
+Monitoramento / Feedback</pre>
+    </div>
+
+    <p>Grande parte da fábrica tradicional já era automatizada — build, testes, deploy, observabilidade e controles de qualidade. O salto recente é a automação da própria construção. Quando essa etapa fica muito mais rápida, o gargalo tende a migrar para <strong style="color:var(--fg)">compreensão, revisão e validação</strong>.</p>
+
+    <h3>O novo problema: confiança em escala</h3>
+    <p>Quanto mais código o agente consegue produzir, menos viável se torna conferir manualmente cada linha. O problema deixa de ser apenas “como gerar mais código?” e passa a ser “como construir confiança suficiente sem transformar o humano no gargalo?”.</p>
+
+    <div class="plugin-grid">
+      <div class="plugin-card">
+        <div class="plugin-card-head"><h4>Feedback automatizado</h4><span class="plugin-card-tag">Confiança</span></div>
+        <p>Testes unitários, regressão, integração e E2E; linters; análise de complexidade; contratos; benchmarks; testes de navegador e validações arquiteturais.</p>
+      </div>
+      <div class="plugin-card">
+        <div class="plugin-card-head"><h4>Observabilidade</h4><span class="plugin-card-tag">Operação</span></div>
+        <p>Métricas, logs, traces e análise automática de incidentes transformam produção em uma fonte contínua de sinais para o sistema de desenvolvimento.</p>
+      </div>
+      <div class="plugin-card">
+        <div class="plugin-card-head"><h4>Critérios objetivos</h4><span class="plugin-card-tag">Back-pressure</span></div>
+        <p>Resultados mensuráveis permitem que o agente compare o estado produzido com um alvo observável, reduzindo dependência de instruções subjetivas.</p>
+      </div>
+    </div>
+
+    <h3>A armadilha da Lights-Off Factory</h3>
+    <p>Uma fábrica totalmente autônoma, na qual agentes implementam, testam, revisam e entregam sem que a equipe acompanhe o sistema, pode funcionar em mudanças pequenas, verificáveis e de baixo risco. O custo aparece quando o conhecimento humano sobre arquitetura, dependências, regras de negócio, contratos e decisões históricas se deteriora.</p>
+
+    <div class="callout">
+      <strong>Princípio:</strong> automação não deve produzir perda de domínio sobre o sistema. Não é necessário ler cada linha gerada, mas é necessário preservar compreensão sobre lógica, arquitetura, contratos, riscos e decisões relevantes.
+    </div>
+
+    <h3>Hipóteses de trabalho sobre código gerado por IA</h3>
+    <p>As notas de origem registram três hipóteses úteis para orientar decisões:</p>
+    <ul class="bullet-list">
+      <li>fazer código tende a se tornar progressivamente mais barato; manter e compreender grandes bases pode continuar caro;</li>
+      <li>arquiteturas podem precisar reduzir o escopo de cada modificação para controlar contexto, tokens e complexidade;</li>
+      <li>guard rails e workflows devem ser reavaliados continuamente, porque uma camada criada para compensar limitações antigas pode se tornar redundante ou até contraproducente em modelos mais capazes.</li>
+    </ul>
+
+    <p>Essa última hipótese conecta-se diretamente ao <a href="#tokens" style="color:var(--accent);text-decoration:none">Módulo 10</a>: processo, plugins e subagentes devem ser proporcionais à tarefa, ao risco e à capacidade nativa do modelo.</p>
+  </div></section>
+
+  <!-- 14 — PRODUCT / ARCHITECTURE / PROGRAM DESIGN -->
+  <section class="section" id="program-design"><div class="container">
+    <p class="section-eyebrow">Módulo 14</p>
+    <h2>Product Design, System Architecture &amp; Program Design</h2>
+    <p>O papel humano de maior alavancagem tende a se deslocar da digitação de código para decisões tomadas <strong style="color:var(--fg)">antes que grandes volumes de implementação existam</strong>. A documentação organiza esse trabalho em três níveis complementares.</p>
+
+    <h3>1. Product Design — comece pelo problema</h3>
+    <p>Antes da tecnologia, devem estar claros o problema do usuário, sua relevância, o comportamento desejado e a forma de medir sucesso.</p>
+    <div class="code-block code-block--prompt">
+      <div class="code-block-header"><span class="code-block-label">Perguntas de produto</span></div>
+      <pre>Qual problema estamos resolvendo?
+Por que esse problema importa?
+Como saberemos se a solução funcionou?
+Qual comportamento queremos produzir?
+Como o usuário perceberá valor?</pre>
+    </div>
+
+    <p>Uma especificação forte descreve também o resultado mensurável. Esse resultado funciona como <strong style="color:var(--fg)">back-pressure</strong>: o agente pode verificar se a alteração aproximou ou afastou o sistema do objetivo.</p>
+
+    <div class="table-wrap"><table>
+      <thead><tr><th>Modo de orientar</th><th>Exemplo</th><th>Trade-off</th></tr></thead>
+      <tbody>
+        <tr><td>Prescritivo</td><td><code>Faça X usando Y, seguindo Z.</code></td><td>Maior previsibilidade; menor espaço de solução.</td></tr>
+        <tr><td>Orientado a resultado</td><td><code>Alcance X respeitando estas restrições.</code></td><td>Maior liberdade; exige bons critérios de sucesso e limites claros.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>2. System Architecture — decida a direção</h3>
+    <p>Depois de entender o produto, define-se como a mudança se encaixa no sistema: serviços, componentes, endpoints, tabelas, contratos, fluxos de dados, dependências, persistência e integrações.</p>
+    <div class="code-block code-block--schema">
+      <div class="code-block-header"><span class="code-block-label">Fluxo arquitetural simplificado</span></div>
+      <pre>POST /orders
+      ↓
+OrderController
+      ↓
+CreateOrderUseCase
+      ↓
+PricingService
+      ↓
+OrderRepository
+      ↓
+Database</pre>
+    </div>
+    <p>O objetivo ainda não é implementar. É deslocar decisões de uma fase cara — depois de centenas de linhas — para uma fase barata, quando mudar de direção exige apenas revisar uma especificação.</p>
+
+    <h3>3. Program Design — o nível intermediário</h3>
+    <p>Entre arquitetura e implementação existe um nível frequentemente ignorado: a forma concreta que o programa terá antes de seus corpos de método estarem escritos.</p>
+    <ul class="bullet-list">
+      <li>localização de arquivos e nomes de tipos;</li>
+      <li>responsabilidades e limites entre componentes;</li>
+      <li>interfaces e assinaturas de métodos;</li>
+      <li><em>call stack</em> e sequência de chamadas;</li>
+      <li>contratos internos e tratamento de erros;</li>
+      <li>testes esperados e decisões de menor confiança.</li>
+    </ul>
+
+    <div class="code-block code-block--output">
+      <div class="code-block-header"><span class="code-block-label">Program Design — exemplo</span></div>
+      <pre>PaymentController
+  → ProcessPaymentUseCase.execute(command)
+      → PaymentGateway.authorize(request)
+      → PaymentRepository.save(payment)
+
+Tipos:
+ProcessPaymentCommand
+PaymentAuthorization
+Payment
+PaymentStatus
+
+Assinaturas:
+ProcessPaymentResult execute(ProcessPaymentCommand command)
+AuthorizationResult authorize(PaymentRequest request)
+void save(Payment payment)</pre>
+    </div>
+
+    <p>Esse artefato é pequeno o suficiente para uma revisão humana rápida, mas concreto o bastante para identificar responsabilidades ruins, abstrações desnecessárias, acoplamento indevido e fluxos incorretos <strong style="color:var(--fg)">antes</strong> da implementação.</p>
+
+    <div class="callout">
+      <strong>Princípio:</strong> resolva decisões de alto impacto quando o contexto ainda está pequeno e o custo de mudança ainda é baixo.
+    </div>
+  </div></section>
+
+  <!-- 15 — VERTICAL SLICES / FEEDBACK -->
+  <section class="section" id="vertical-feedback"><div class="container">
+    <p class="section-eyebrow">Módulo 15</p>
+    <h2>Vertical Slices &amp; Feedback Determinístico</h2>
+
+    <h3>Evite implementação horizontal</h3>
+    <p>Uma decomposição horizontal — construir todo o banco, depois todos os serviços, depois toda a API e só então integrar — acumula decisões antes de existir qualquer caminho funcional que possa ser validado de ponta a ponta.</p>
+
+    <div class="table-wrap"><table>
+      <thead><tr><th>Horizontal</th><th>Vertical</th></tr></thead>
+      <tbody>
+        <tr><td>Banco inteiro → serviços inteiros → API inteira → frontend → integração</td><td>UI mínima → endpoint mínimo → serviço mínimo → persistência mínima → teste ponta a ponta</td></tr>
+        <tr><td>Feedback tardio</td><td>Feedback após cada fatia</td></tr>
+        <tr><td>Grande volume de código antes de validar direção</td><td>Pequeno volume e baixo custo de correção</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="code-block code-block--schema">
+      <div class="code-block-header"><span class="code-block-label">Expansão por slices</span></div>
+      <pre>Slice 1 → caminho feliz mínimo
+Slice 2 → regra de negócio principal
+Slice 3 → validações
+Slice 4 → erros
+Slice 5 → casos de borda
+Slice 6 → otimizações</pre>
+    </div>
+
+    <div class="callout">
+      <strong>Princípio:</strong> faça o sistema funcionar de ponta a ponta o mais cedo possível; depois aumente sua profundidade.
+    </div>
+
+    <h3>Transforme “bom” em verificável</h3>
+    <p>Quanto mais critérios subjetivos forem convertidos em verificações objetivas, maior a autonomia segura do agente. “Código limpo” e “arquitetura elegante” são difíceis de testar; contratos e invariantes não.</p>
+
+    <div class="code-block code-block--prompt">
+      <div class="code-block-header"><span class="code-block-label">Exemplos de restrições observáveis</span></div>
+      <pre>Nenhum controller acessa diretamente o repositório.
+Nenhum método público excede o limite de complexidade definido.
+A API não quebra compatibilidade com a versão anterior.
+Todo novo comportamento possui teste de regressão.
+Um teste criado para corrigir um bug falha na versão anterior à correção.</pre>
+    </div>
+
+    <h3>Back-pressure forte</h3>
+    <p>Os mecanismos mais úteis são aqueles que devolvem um sinal verificável ao agente: testes unitários, integração e E2E; benchmarks; limites de latência; métricas de custo; contratos; invariantes; regras arquiteturais; análise estática; cobertura de cenários e métricas de produto.</p>
+
+    <div class="callout callout--warn">
+      <strong>Limite importante:</strong> passar testes não equivale a produzir software sustentável. Testes são um oracle rápido para comportamento conhecido; mantenibilidade e qualidade evolutiva frequentemente só revelam seus custos semanas ou meses depois.
+    </div>
+  </div></section>
+
+  <!-- 16 — CONTEXT ENGINEERING -->
+  <section class="section" id="context-engineering"><div class="container">
+    <p class="section-eyebrow">Módulo 16</p>
+    <h2>Context Engineering como Disciplina Operacional</h2>
+    <p>Context Engineering é a gestão deliberada do que entra na janela de contexto. O objetivo não é maximizar tokens, e sim <strong style="color:var(--fg)">maximizar sinal</strong>: informação correta, suficiente, relevante e atual, no menor volume compatível com a tarefa.</p>
+
+    <div class="code-block code-block--schema">
+      <div class="code-block-header"><span class="code-block-label">Contexto como estado</span></div>
+      <pre>Context =
+    instructions
+  + problem
+  + relevant code
+  + decisions
+  + history
+  + tool outputs
+  + constraints
+  + observations</pre>
+    </div>
+
+    <p>Uma estratégia saudável procura alta relevância, baixa redundância, pouca informação incorreta ou obsoleta e tamanho controlado. Mais contexto pode diluir instruções importantes, introduzir conflitos e manter decisões que já deveriam ter sido descartadas.</p>
+
+    <h3>Context Engineering ≠ Steering</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Conceito</th><th>Pergunta</th><th>Exemplos</th></tr></thead>
+      <tbody>
+        <tr><td><strong style="color:var(--fg)">Context Engineering</strong></td><td>O que o modelo sabe?</td><td>Código atual, ADRs, contratos, histórico relevante, logs, restrições.</td></tr>
+        <tr><td><strong style="color:var(--fg)">Steering</strong></td><td>Como queremos que ele aja?</td><td>Preservar compatibilidade, não criar dependência, preferir solução simples, explicitar incertezas.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>A “dumb zone” e a degradação de sessões</h3>
+    <p>As fontes descrevem informalmente uma zona em que sessões longas começam a mostrar repetição, contradições, perda de decisões, atalhos e dificuldade de reorientação. Não é tratada como um limite universal de tokens, mas como um fenômeno operacional a observar.</p>
+
+    <div class="code-block code-block--output">
+      <div class="code-block-header"><span class="code-block-label">Recuperação de sessão</span></div>
+      <pre>Sessão longa
+    ↓
+Consolidar decisões
+    ↓
+Gerar documento de handoff
+    ↓
+Eliminar histórico irrelevante
+    ↓
+Nova sessão
+    ↓
+Continuar do estado consolidado</pre>
+    </div>
+
+    <h4>Uma boa compactação preserva</h4>
+    <ul class="bullet-list">
+      <li>objetivo, decisões tomadas e decisões rejeitadas com seus motivos;</li>
+      <li>arquitetura atual, próximos passos e riscos conhecidos;</li>
+      <li>arquivos relevantes, testes e restrições.</li>
+    </ul>
+    <h4>E remove</h4>
+    <ul class="bullet-list">
+      <li>tentativas descartadas, conversas redundantes e explicações repetidas;</li>
+      <li>logs já resolvidos e caminhos investigados que foram encerrados.</li>
+    </ul>
+
+    <div class="callout">
+      <strong>Estado útil, não resumo genérico:</strong> o objetivo da compactação é preservar a capacidade de continuar o trabalho, não atribuir o mesmo peso a tudo que aconteceu na sessão.
+    </div>
+
+    <h3>O repositório como base de conhecimento</h3>
+    <p>Contexto estável deve viver próximo do código para que novas sessões não precisem redescobrir decisões já tomadas.</p>
+    <div class="code-block code-block--schema">
+      <div class="code-block-header"><span class="code-block-label">Estrutura documental</span></div>
+      <pre>docs/
+├── architecture/
+├── adr/
+├── product/
+├── external/
+├── operations/
+└── runbooks/</pre>
+    </div>
+
+    <p><strong style="color:var(--fg)">ADRs</strong> registram decisões e consequências. <code>docs/external/</code> pode documentar, sem segredos, provedores, ambientes, variáveis, canais de teste, deployment e observabilidade. Isso transforma conhecimento tácito em arquivos que agentes conseguem localizar por operações simples como <code>read</code>, <code>grep</code>, <code>edit</code> e <code>bash</code>.</p>
+
+    <h3>Contexto determinístico antes de inferência</h3>
+    <p>Se uma informação pode ser coletada por código — estado do CI, arquivos alterados, configuração, ADRs relacionados, logs e incidentes — é preferível preparar esse contexto deterministicamente e entregar o resultado ao modelo.</p>
+    <div class="callout">
+      <strong>Princípio:</strong> use computação tradicional para coleta e transformação determinística; preserve inferência para tarefas que realmente exigem julgamento e raciocínio.
+    </div>
+  </div></section>
+
+  <!-- 17 — SUSTAINABILITY -->
+  <section class="section" id="sustentabilidade"><div class="container">
+    <p class="section-eyebrow">Módulo 17</p>
+    <h2>Sustentabilidade, Benchmarks &amp; Gargalos</h2>
+
+    <h3>Resolver um problema não é manter um sistema</h3>
+    <p>Benchmarks de coding agents tendem a premiar a capacidade de produzir um patch que faz testes passarem em um estado conhecido. Isso mede resolução pontual, mas não necessariamente qualidade arquitetural, simplicidade, legibilidade, facilidade de evolução ou custo de manutenção.</p>
+
+    <div class="code-block code-block--schema">
+      <div class="code-block-header"><span class="code-block-label">Benchmark pontual vs. evolutivo</span></div>
+      <pre>Benchmark pontual:
+Problema → Patch → Testes → Passou? → Sucesso
+
+Avaliação evolutiva:
+Estado inicial
+  ↓
+Feature 1
+  ↓
+Feature 2
+  ↓
+Feature 3
+  ↓
+...
+  ↓
+Feature 20
+
+Pergunta adicional:
+"O sistema continua fácil de evoluir?"</pre>
+    </div>
+
+    <p>O “oracle” da manutenção é lento. Uma decisão arquitetural ruim pode parecer correta hoje e cobrar seu custo somente depois de novas features, incidentes, escala ou entrada de outra equipe no componente.</p>
+
+    <h3>Eficiência local não é eficiência sistêmica</h3>
+    <p>Aplicando a lógica da Teoria das Restrições, acelerar uma etapa que não é o gargalo não aumenta necessariamente o throughput do sistema.</p>
+    <div class="code-block code-block--output">
+      <div class="code-block-header"><span class="code-block-label">Exemplo</span></div>
+      <pre>Implementação: 10× mais rápida
+Review: permanece igual
+
+Resultado:
+mais código esperando revisão
+≠
+mais valor entregue</pre>
+    </div>
+
+    <div class="callout">
+      <strong>Pergunta operacional:</strong> este é realmente o gargalo atual? Se não for, a otimização pode ser tecnicamente interessante e economicamente irrelevante.
+    </div>
+
+    <h3>Metaprodutividade</h3>
+    <p>É possível consumir grande parte do tempo criando agentes, roteamentos, frameworks, prompts, automações, atalhos e ferramentas que constroem outras ferramentas. O critério final continua sendo <strong style="color:var(--fg)">valor entregue ao usuário</strong>, não número de agentes, tokens, plugins ou automações.</p>
+
+    <h3>Rigor proporcional ao contexto do negócio</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Cenário</th><th>Prioridades</th><th>Risco dominante</th></tr></thead>
+      <tbody>
+        <tr><td>Antes do Product-Market Fit</td><td>Velocidade, experimentação, contato com clientes, aprendizado, baixo custo de mudança.</td><td>Construir perfeitamente algo que ninguém quer.</td></tr>
+        <tr><td>Produto estabelecido</td><td>Arquitetura, Program Design, documentação, testes, contratos, observabilidade e rastreabilidade.</td><td>Incidentes, regressões, contratos quebrados e custo de evolução.</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="callout">
+      <strong>Princípio:</strong> o nível de processo deve ser proporcional ao custo de uma decisão errada.
+    </div>
+
+    <h3>Intuição humana como ativo</h3>
+    <p>Incidentes, refatorações difíceis, falhas arquiteturais, problemas de performance e abstrações excessivas produzem intuição. O objetivo não é descartar essa experiência, mas aplicá-la antes da implementação massiva, quando ela consegue evitar retrabalho em vez de apenas detectá-lo depois.</p>
+
+    <div class="code-block code-block--prompt">
+      <div class="code-block-header"><span class="code-block-label">Alavancagem humana</span></div>
+      <pre>Humano define decisões relevantes
+        ↓
+Agente implementa dentro dessas decisões
+        ↓
+Feedback automatizado
+        ↓
+Revisão focada em risco</pre>
+    </div>
+
+    <h3>Decisão sob incerteza</h3>
+    <p>Engenharia e produto operam com informação incompleta. Nem toda dívida, ineficiência ou risco merece ser tratado imediatamente. A prioridade deve considerar valor esperado e reversibilidade.</p>
+    <div class="code-block code-block--schema">
+      <div class="code-block-header"><span class="code-block-label">Heurística</span></div>
+      <pre>prioridade ≈ probabilidade × impacto × custo × reversibilidade</pre>
+    </div>
+
+    <h3>Mercado, hype e FOMO profissional</h3>
+    <p>As notas também registram uma observação sobre o mercado ao redor da IA: o receio de obsolescência cria demanda por cursos, mentorias e promessas de transformação rápida. Pode haver oportunidades reais, mas também exagero, promessas irreais e oportunismo. A consequência prática é a mesma deste módulo: avaliar ferramentas e métodos pelo gargalo que removem e pelo valor que produzem, não pela urgência do discurso.</p>
+  </div></section>
+
+  <!-- 18 — WORKFLOW -->
+  <section class="section" id="workflow-agentico"><div class="container">
+    <p class="section-eyebrow">Módulo 18</p>
+    <h2>Workflow Operacional &amp; Metodologias</h2>
+
+    <h3>Workflow recomendado para desenvolvimento com agentes</h3>
+    <div class="workflow-grid">
+      <div class="workflow-step"><span class="step-num">Etapa 01</span><strong>Definir o problema</strong><p>Qual problema? Para quem? Por quê?</p></div>
+      <div class="workflow-step"><span class="step-num">Etapa 02</span><strong>Definir sucesso</strong><p>Como saberemos que funcionou? Existe métrica objetiva?</p></div>
+      <div class="workflow-step"><span class="step-num">Etapa 03</span><strong>Definir restrições</strong><p>Compatibilidade, segurança, performance, regulação, dependências e padrões internos.</p></div>
+      <div class="workflow-step"><span class="step-num">Etapa 04</span><strong>Definir arquitetura</strong><p>Componentes, fluxos, contratos, persistência e integrações.</p></div>
+      <div class="workflow-step"><span class="step-num">Etapa 05</span><strong>Fazer Program Design</strong><p>Arquivos, tipos, interfaces, métodos, call stack, testes e decisões incertas.</p></div>
+      <div class="workflow-step"><span class="step-num">Etapa 06</span><strong>Planejar vertical slices</strong><p>Menor caminho funcional ponta a ponta, validar e expandir.</p></div>
+      <div class="workflow-step"><span class="step-num">Etapa 07</span><strong>Implementar com agente</strong><p>Entregar contexto relevante e decisões já consolidadas.</p></div>
+      <div class="workflow-step"><span class="step-num">Etapa 08</span><strong>Produzir feedback</strong><p>Testes, lint, análise estática, benchmarks, browser tests, quality rules e observabilidade.</p></div>
+      <div class="workflow-step"><span class="step-num">Etapa 09</span><strong>Revisar riscos</strong><p>Concentrar revisão humana onde o custo de erro é maior, não necessariamente em todas as linhas.</p></div>
+      <div class="workflow-step"><span class="step-num">Etapa 10</span><strong>Consolidar conhecimento</strong><p>Atualizar ADRs, arquitetura, runbooks, documentação externa e decisões de produto.</p></div>
+      <div class="workflow-step"><span class="step-num">Etapa 11</span><strong>Compactar quando necessário</strong><p>Preservar estado útil e reiniciar contexto quando a qualidade degradar.</p></div>
+      <div class="workflow-step"><span class="step-num">Etapa 12</span><strong>Reavaliar o gargalo</strong><p>O que está limitando a entrega de valor agora?</p></div>
+    </div>
+
+    <h3>Separação de responsabilidades</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Área</th><th>Humano</th><th>Agente</th></tr></thead>
+      <tbody>
+        <tr><td>Problema de produto</td><td>Lidera</td><td>Apoia análise</td></tr>
+        <tr><td>Métricas de sucesso</td><td>Define</td><td>Monitora e otimiza</td></tr>
+        <tr><td>Arquitetura</td><td>Decide / valida</td><td>Propõe alternativas</td></tr>
+        <tr><td>Program Design</td><td>Decide pontos críticos</td><td>Expande detalhes</td></tr>
+        <tr><td>Implementação</td><td>Supervisiona</td><td>Executa em escala</td></tr>
+        <tr><td>Testes</td><td>Define estratégia</td><td>Gera e executa</td></tr>
+        <tr><td>Code Review</td><td>Foca riscos</td><td>Faz primeira triagem</td></tr>
+        <tr><td>Refatoração</td><td>Define intenção</td><td>Executa</td></tr>
+        <tr><td>Observabilidade</td><td>Define sinais</td><td>Analisa eventos</td></tr>
+        <tr><td>Incidentes</td><td>Decide casos críticos</td><td>Diagnostica e propõe correções</td></tr>
+        <tr><td>Contexto</td><td>Faz curadoria</td><td>Consome e atualiza</td></tr>
+        <tr><td>Documentação</td><td>Define conhecimento relevante</td><td>Mantém e organiza</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Metodologias registradas nas notas</h3>
+
+    <details>
+      <summary>Framework CHIA — contexto, habilidades, integrações e automações</summary>
+      <div class="detail-content">
+        <p class="source-note">A referência de vídeo e os timestamps vieram das notas fornecidas e não foram validados externamente nesta edição.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Pilar</th><th>Função</th></tr></thead>
+          <tbody>
+            <tr><td><strong style="color:var(--fg)">C — Contexto</strong></td><td>Arquivos de instrução organizados hierarquicamente para representar memória e conhecimento do negócio.</td></tr>
+            <tr><td><strong style="color:var(--fg)">H — Habilidades</strong></td><td>Procedimentos repetíveis documentados como skills para futura execução autônoma.</td></tr>
+            <tr><td><strong style="color:var(--fg)">I — Integrações</strong></td><td>APIs e conectores que dão acesso a sistemas externos sem sair do ambiente do agente.</td></tr>
+            <tr><td><strong style="color:var(--fg)">A — Automações</strong></td><td>Rotinas programadas para tarefas repetitivas, sincronizações e resumos.</td></tr>
+          </tbody>
+        </table></div>
+        <p>A ênfase registrada é que uma estrutura bem organizada de pastas e arquivos funciona como base de conhecimento operacional do agente.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Prompting 2.0 — transferência de contexto por fluxo de consciência</summary>
+      <div class="detail-content">
+        <p>A técnica descrita nas notas propõe uma sessão de voz longa e livre, em que o usuário transfere intenção, contexto e detalhes sem tentar estruturar previamente cada ponto. O modelo organiza esse material depois.</p>
+        <p>O contraste apresentado é entre um prompt tradicional, rápido e conciso, e uma sessão de contexto mais rica, que exige investimento inicial maior, mas pode produzir um resultado mais profundo. Trata-se de uma prática registrada na fonte, não de uma regra universal.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Software Factory Playbook — quatro gates antes da implementação ampla</summary>
+      <div class="detail-content">
+        <div class="table-wrap"><table>
+          <thead><tr><th>#</th><th>Gate</th><th>Conteúdo</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Product</td><td>Problema do usuário, medida de sucesso e representação do comportamento desejado antes da tecnologia.</td></tr>
+            <tr><td>2</td><td>Architecture</td><td>Como a mudança se encaixa no sistema: endpoints, tabelas, queries e fluxo ponta a ponta.</td></tr>
+            <tr><td>3</td><td>Program Design</td><td>Arquivos, tipos, assinaturas, call stack, testes e decisões de menor confiança.</td></tr>
+            <tr><td>4</td><td>Vertical Slices</td><td>Tracer bullet funcional e expansão incremental, testável e redirecionável.</td></tr>
+          </tbody>
+        </table></div>
+        <p>O estado é mantido em documentos por feature, com um arquivo de status e compactação nas fronteiras entre gates e slices. Mudanças triviais podem ser isentas do processo completo.</p>
+      </div>
+    </details>
+
+    <h3>25 princípios consolidados</h3>
+    <div class="principle-list">
+      <div class="principle-item"><span><strong>Agentes aceleram construção; não eliminam automaticamente gargalos.</strong></span></div>
+      <div class="principle-item"><span>O problema de produto deve preceder a implementação.</span></div>
+      <div class="principle-item"><span>Resultados mensuráveis aumentam a autonomia segura.</span></div>
+      <div class="principle-item"><span>Arquitetura deve ser decidida antes de grandes volumes de código.</span></div>
+      <div class="principle-item"><span>Program Design reduz decisões implícitas feitas pelo agente.</span></div>
+      <div class="principle-item"><span>Decisões importantes devem acontecer cedo, quando mudar ainda é barato.</span></div>
+      <div class="principle-item"><span>Prefira vertical slices a grandes implementações horizontais.</span></div>
+      <div class="principle-item"><span>Transforme qualidade subjetiva em regras verificáveis sempre que possível.</span></div>
+      <div class="principle-item"><span>Passar testes não equivale a produzir software sustentável.</span></div>
+      <div class="principle-item"><span>Benchmarks pontuais não medem adequadamente evolução de longo prazo.</span></div>
+      <div class="principle-item"><span>Mantenibilidade é difícil de otimizar porque seu custo aparece com atraso.</span></div>
+      <div class="principle-item"><span>Context Engineering é curadoria de informação, não maximização de tokens.</span></div>
+      <div class="principle-item"><span>Contexto menor, correto e relevante tende a ser mais útil que contexto indiscriminado.</span></div>
+      <div class="principle-item"><span>Documente decisões para impedir que o modelo precise redescobri-las.</span></div>
+      <div class="principle-item"><span>Mantenha conhecimento operacional próximo do código.</span></div>
+      <div class="principle-item"><span>Use código determinístico para coleta de contexto sempre que possível.</span></div>
+      <div class="principle-item"><span>Preserve inferência para tarefas que realmente exigem raciocínio.</span></div>
+      <div class="principle-item"><span>Compaction deve preservar estado útil e descartar ruído.</span></div>
+      <div class="principle-item"><span>Automação não deve provocar perda de domínio sobre o sistema.</span></div>
+      <div class="principle-item"><span>O nível de rigor deve acompanhar o custo de falha do produto.</span></div>
+      <div class="principle-item"><span>Intuição humana é um ativo e deve ser aplicada antes do retrabalho.</span></div>
+      <div class="principle-item"><span>Não confunda eficiência local com throughput global.</span></div>
+      <div class="principle-item"><span>Não otimize uma etapa apenas porque ela pode ser otimizada.</span></div>
+      <div class="principle-item"><span><strong>Ataque o gargalo.</strong></span></div>
+      <div class="principle-item"><span>O objetivo final é valor entregue ao usuário, não quantidade de código ou tokens consumidos.</span></div>
+    </div>
+
+    <h3>Checklist prático</h3>
+    <details>
+      <summary>Antes de iniciar uma tarefa com agente</summary>
+      <div class="detail-content"><ul class="checklist">
+        <li>O problema está claramente definido?</li>
+        <li>O valor para o usuário está explícito?</li>
+        <li>Existe critério mensurável de sucesso?</li>
+        <li>As restrições relevantes estão documentadas?</li>
+        <li>A arquitetura foi discutida?</li>
+        <li>As principais decisões de Program Design foram tomadas?</li>
+        <li>O agente sabe quais decisões não pode tomar sozinho?</li>
+        <li>Existe um caminho vertical mínimo para validar?</li>
+        <li>Há testes ou métricas que forneçam feedback?</li>
+        <li>O contexto fornecido é relevante e atual?</li>
+        <li>ADRs e contratos necessários estão disponíveis?</li>
+        <li>A tarefa realmente atua sobre o gargalo atual?</li>
+      </ul></div>
+    </details>
+
+    <details>
+      <summary>Durante a implementação</summary>
+      <div class="detail-content"><ul class="checklist">
+        <li>Existe algo executável ou testável cedo?</li>
+        <li>O agente está seguindo a direção esperada?</li>
+        <li>As decisões incertas estão sendo explicitadas?</li>
+        <li>O volume de contexto ainda é saudável?</li>
+        <li>Alguma decisão precisa ser promovida a ADR?</li>
+        <li>A implementação está ficando mais complexa do que o necessário?</li>
+      </ul></div>
+    </details>
+
+    <details>
+      <summary>Depois da implementação</summary>
+      <div class="detail-content"><ul class="checklist">
+        <li>O comportamento foi testado de fora do sistema?</li>
+        <li>Os testes novos realmente detectariam a regressão?</li>
+        <li>Contratos anteriores continuam válidos?</li>
+        <li>O código continua fácil de modificar?</li>
+        <li>A documentação foi atualizada?</li>
+        <li>O conhecimento necessário para a próxima sessão está preservado?</li>
+        <li>O trabalho reduziu o gargalo real ou apenas aumentou produção local?</li>
+      </ul></div>
+    </details>
+
+    <div class="callout">
+      <strong>Síntese:</strong> o engenheiro deixa de ser apenas autor de linhas e passa a atuar como designer do sistema de decisões, contexto e feedback dentro do qual os agentes trabalham. A meta não é produzir o máximo possível, mas entregar valor continuamente sem perder controle, compreensão e capacidade de evolução.
+    </div>
+  </div></section>
+
+  <!-- 19 — GLOSSÁRIO -->
+  <section class="section" id="glossario"><div class="container">
+    <p class="section-eyebrow">Módulo 19</p>
     <h2>Glossário & Referência Rápida</h2>
 
     <div class="glossary-item">
@@ -1569,6 +2223,39 @@ Tarefa crítica       → planejamento + execução + revisão independente</pre
       <div class="glossary-term">Skill</div>
       <div class="glossary-def">Arquivo SKILL.md que o agente carrega e segue — um playbook de boas práticas para um tipo específico de tarefa.</div>
     </div>
+
+    <div class="glossary-item">
+      <div class="glossary-term">ADR (Architecture Decision Record)</div>
+      <div class="glossary-def">Registro curto de uma decisão arquitetural, seu contexto e suas consequências. Mantém decisões estáveis disponíveis para humanos e agentes.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Agentic Software Factory</div>
+      <div class="glossary-def">Fluxo de desenvolvimento em que agentes assumem parte substancial da implementação e de outras etapas, exigindo redesenho de feedback, validação, contexto e responsabilidades humanas.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Back-pressure</div>
+      <div class="glossary-def">Sinal objetivo devolvido ao agente para indicar se a execução aproximou ou afastou o sistema do resultado esperado, como testes, métricas, contratos ou benchmarks.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Context Engineering</div>
+      <div class="glossary-def">Curadoria deliberada da informação que entra na janela de contexto: código, decisões, histórico, ferramentas, restrições e observações relevantes.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Dumb Zone</div>
+      <div class="glossary-def">Termo informal usado nas fontes para descrever a degradação operacional de sessões longas: repetição, contradições, perda de decisões e dificuldade de reorientação.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Program Design</div>
+      <div class="glossary-def">Nível entre arquitetura e implementação que define arquivos, tipos, responsabilidades, interfaces, assinaturas, call stack, contratos internos, testes e tratamento de erros antes do código completo.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Steering</div>
+      <div class="glossary-def">Orientações sobre como o modelo deve agir diante do contexto disponível, como preservar compatibilidade, evitar dependências ou preferir soluções simples.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Vertical Slice</div>
+      <div class="glossary-def">Fatia funcional ponta a ponta que atravessa as camadas mínimas necessárias para produzir algo executável e verificável cedo.</div>
+    </div>
     <div class="glossary-item">
       <div class="glossary-term">Temperatura</div>
       <div class="glossary-def">Parâmetro que controla aleatoriedade na geração. T=0 é determinístico; valores maiores aumentam variação.</div>
@@ -1590,7 +2277,7 @@ Tarefa crítica       → planejamento + execução + revisão independente</pre
   <!-- FOOTER -->
   <footer class="footer"><div class="container">
     <p>Guia de Bolso do Claude — Edição Agosto 2026</p>
-    <p style="margin-top:8px">Conteúdo teórico atemporal. Gerado com auxílio de IA.</p>
+    <p style="margin-top:8px">Conteúdo teórico e documental. Inclui material fornecido pelo usuário, reorganizado com auxílio de IA.</p>
     <p style="margin-top:4px">Pato Branco, PR</p>
   </div></footer>
 
